@@ -12,46 +12,10 @@
           "informationUri": "https://www.glog.ai",
           "rules": [
             {
-              "id": "glog-becfc8af-6d9f-4584-a341-0c0c8c74373e",
+              "id": "9847730e-3033-3a5c-a937-3b1d9c396306",
               "help": {
                 "text": "",
-                "markdown": "### Description\n\nThe \"Vulnerable/Compromised Hash Algorithm\" vulnerability in C++ refers to the use of cryptographic hash functions that are considered weak or broken, such as MD2. MD2 is an older hash function that is no longer considered secure due to its susceptibility to collision attacks, where two different inputs produce the same hash output. This vulnerability can lead to security issues such as data integrity violations and unauthorized data access.\n\n### General Mitigation Advice\n\n1. **Avoid Using Weak Hash Functions**: Replace MD2 with a more secure hash function like SHA-256 or SHA-3.\n2. **Use Well-Maintained Libraries**: Utilize cryptographic libraries that are actively maintained and updated.\n3. **Regularly Update Dependencies**: Ensure that all cryptographic libraries are up-to-date to benefit from the latest security patches.\n\n### Source Code Fix Recommendation\n\nBelow is an example of how to replace MD2 with SHA-256 using the OpenSSL library in C++.\n\n```cpp\n#include <openssl/sha.h>\n#include <iostream>\n#include <iomanip>\n#include <sstream>\n#include <string>\n\n// Function to compute SHA-256 hash\nstd::string computeSHA256(const std::string& data) {\n    unsigned char hash[SHA256_DIGEST_LENGTH];\n    SHA256_CTX sha256;\n    SHA256_Init(&sha256);\n    SHA256_Update(&sha256, data.c_str(), data.size());\n    SHA256_Final(hash, &sha256);\n\n    std::stringstream ss;\n    for (int i = 0; i < SHA256_DIGEST_LENGTH; ++i) {\n        ss << std::hex << std::setw(2) << std::setfill('0') << (int)hash[i];\n    }\n    return ss.str();\n}\n\nint main() {\n    std::string data = \"example data\";\n    std::string hash = computeSHA256(data);\n    std::cout << \"SHA-256 hash: \" << hash << std::endl;\n    return 0;\n}\n```\n\n### Library Dependencies\n\nTo execute the above code, you need the following library:\n\n- OpenSSL\n\nEnsure that OpenSSL is installed on your system and linked during compilation. You can compile the code using:\n\n```bash\ng++ -o hash_example hash_example.cpp -lssl -lcrypto\n```\n\n### Relevant OWASP Resources\n\n- [OWASP Cryptographic Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html)\n- [OWASP Top Ten](https://owasp.org/www-project-top-ten/)\n\n### Common Weakness Enumeration (CWE)\n\n- [CWE-327: Use of a Broken or Risky Cryptographic Algorithm](https://cwe.mitre.org/data/definitions/327.html)"
-              },
-              "properties": {
-                "tags": [
-                  "DS126858"
-                ]
-              }
-            },
-            {
-              "id": "glog-4bae7b88-6b28-4f28-bf74-5a14986164c9",
-              "help": {
-                "text": "",
-                "markdown": "## Description\n\nThe `malloc` function in C++ is used to dynamically allocate memory at runtime. However, it can be a source of vulnerabilities if not used properly. If the size of the memory block to be allocated is not properly validated, it can lead to buffer overflow, memory corruption, or other types of undefined behavior. This can potentially be exploited by an attacker to execute arbitrary code or cause a denial of service.\n\n## Mitigation Advice\n\nTo mitigate this vulnerability, you should always validate the size of the memory block before calling `malloc`. Avoid using user-supplied or untrusted data directly as the argument to `malloc`. Also, always check the return value of `malloc` to ensure that the memory allocation was successful.\n\n## Source Code Fix Recommendation\n\nHere is a simple example of how to properly use `malloc`:\n\n```cpp\n#include <stdlib.h>\n\n#define BLOCKSIZE 1024\n\nint main() {\n    void* ptr = malloc(BLOCKSIZE);\n    if (ptr == NULL) {\n        // Handle malloc failure (e.g., by exiting the program).\n        exit(1);\n    }\n\n    // Use ptr...\n\n    free(ptr);\n    return 0;\n}\n```\n\nIn this example, `BLOCKSIZE` is a constant, so there is no risk of buffer overflow. The return value of `malloc` is checked to ensure that the memory allocation was successful.\n\n## Library Dependencies\n\nThe `malloc` function is part of the C standard library, so no additional library dependencies are required.\n\n## References\n\n- [CWE-131: Incorrect Calculation of Buffer Size](https://cwe.mitre.org/data/definitions/131.html)"
-              },
-              "properties": {
-                "tags": [
-                  "DS161085"
-                ]
-              }
-            },
-            {
-              "id": "glog-571ad9ba-24ce-4c91-a62d-997f24609245",
-              "help": {
-                "text": "",
-                "markdown": "## Description\n\nThe `malloc()` function in C is used to dynamically allocate a block of memory. If not used properly, it can lead to vulnerabilities such as buffer overflows, memory leaks, and null pointer dereferencing. In this case, the vulnerability lies in the lack of error checking after the `malloc()` call. If `malloc()` fails to allocate the requested memory, it returns a null pointer. If this null pointer is used in subsequent operations without checking, it can lead to undefined behavior and potential security issues.\n\n## Mitigation Advice\n\nTo mitigate this vulnerability, always check the return value of `malloc()` to ensure that the memory allocation was successful. If `malloc()` returns a null pointer, handle the error appropriately to prevent undefined behavior.\n\n## Source Code Fix Recommendation\n\nHere is a simple fix for the vulnerability:\n\n```c++\nchar* link_info = (char*) malloc(link_info_sz);\nif (link_info == NULL) {\n    // Handle error\n    fprintf(stderr, \"Memory allocation failed\\n\");\n    exit(1);\n}\n```\n\nIn this code, we check if `malloc()` returns a null pointer. If it does, we print an error message and terminate the program.\n\n## Library Dependencies\n\nThe `malloc()` function is part of the C standard library, so no additional libraries are needed.\n\n## References\n\n- [CWE-690: Unchecked Return Value to NULL Pointer Dereference](https://cwe.mitre.org/data/definitions/690.html)"
-              },
-              "properties": {
-                "tags": [
-                  "DS161085"
-                ]
-              }
-            },
-            {
-              "id": "glog-0282d989-573a-4bec-8abc-e96fdf225840",
-              "help": {
-                "text": "",
-                "markdown": "## Description\n\nThe `memcpy` function in C++ is used to copy a block of memory from one location to another. This function does not check for the size of the destination buffer, which can lead to buffer overflow if the source is larger than the destination. This is a common vulnerability in C++ programming, and can lead to serious security issues such as data corruption, system crashes, and even arbitrary code execution.\n\n## Mitigation Advice\n\nTo mitigate this vulnerability, you should always ensure that the destination buffer is large enough to hold the data being copied. This can be done by checking the size of the source and destination before calling `memcpy`. Alternatively, you can use functions like `strncpy` or `memcpy_s` that take the size of the destination as a parameter and ensure that no overflow occurs.\n\n## Source Code Fix Recommendation\n\nReplace the `memcpy` function with `memcpy_s` which checks for buffer overflow:\n\n```cpp\nmemcpy_s(&(rvs_session[session_idx].property), sizeof(rvs_session[session_idx].property), session_property, sizeof(rvs_session_property_t));\n```\n\n## Library Dependencies\n\nThe `memcpy` function is part of the C Standard Library, so no additional libraries are required for this code to execute properly.\n\n## OWASP and CWE Links\n\n- [OWASP C++ Secure Coding Practices](https://cheatsheetseries.owasp.org/cheatsheets/C-Based_Toolchain_Hardening_Cheat_Sheet.html)\n- [CWE-120: Buffer Copy without Checking Size of Input ('Classic Buffer Overflow')](https://cwe.mitre.org/data/definitions/120.html)\n\nPlease note that these links are subject to change and may not always be accessible. Always ensure to check the validity of the links before using them."
+                "markdown": "This finding is considered a genuine vulnerability because the analysis identified a risk of undefined behavior due to possible overlap between the source and destination memory regions in the memory copy operation. The dataflow analysis suggests that the destination buffer may be used as the source, which can lead to undefined behavior with functions like memcpy if the regions overlap. There is no evidence of a guard or check to prevent this overlap, and the source and destination are not proven to be distinct. Additionally, there is a risk that the source pointer may be null, as there is no prior check ensuring it is valid. These factors indicate a real risk of memory corruption or program instability.\n\n## In Context Remediation\nTo prevent undefined behavior when copying memory, ensure that the source and destination memory regions do not overlap. If there is any possibility of overlap, use `std::memmove` instead of `std::memcpy`, as `memmove` is designed to handle overlapping regions safely. Additionally, check that the source pointer is not null before performing the copy to avoid null pointer dereference.\n\n```cpp\nif (data != nullptr && dataBytes.data() != nullptr) {\n    std::memmove(data, dataBytes.data(), dataBytes.size() * sizeof(uint8_t));\n}\n```\n\n## References\n- [OWASP C-Based Toolchain Hardening Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/C-Based_Toolchain_Hardening_Cheat_Sheet.html)\n- [CWE-119: Improper Restriction of Operations within the Bounds of a Memory Buffer](https://cwe.mitre.org/data/definitions/119.html)\n- [CWE-787: Out-of-bounds Write](https://cwe.mitre.org/data/definitions/787.html)\n- [OWASP Buffer Overflow](https://owasp.org/www-community/vulnerabilities/Buffer_Overflow)\n\n\n___\n"
               },
               "properties": {
                 "tags": [
@@ -60,22 +24,22 @@
               }
             },
             {
-              "id": "glog-9d0be625-7944-498f-9ca3-5695d0bcbee9",
+              "id": "2fbf1750-af36-31db-9d31-743e287bfdca",
               "help": {
                 "text": "",
-                "markdown": "### Description\n\nThe \"Vulnerable/Compromised Hash Algorithm\" vulnerability in C++ refers to the use of cryptographic hash functions that are considered weak or broken, such as MD2. MD2 is an older hash function that is no longer considered secure due to its susceptibility to collision attacks, where two different inputs produce the same hash output. This vulnerability can lead to security issues such as data integrity violations and unauthorized data access.\n\n### General Mitigation Advice\n\n1. **Avoid Using Weak Hash Functions**: Replace MD2 with a more secure hash function like SHA-256 or SHA-3.\n2. **Use Well-Maintained Libraries**: Utilize cryptographic libraries that are actively maintained and updated.\n3. **Regularly Update Dependencies**: Ensure that all cryptographic libraries are up-to-date to benefit from the latest security patches.\n\n### Source Code Fix Recommendation\n\nBelow is an example of how to replace MD2 with SHA-256 using the OpenSSL library in C++.\n\n```cpp\n#include <openssl/sha.h>\n#include <iostream>\n#include <iomanip>\n#include <sstream>\n#include <string>\n\n// Function to compute SHA-256 hash\nstd::string computeSHA256(const std::string& data) {\n    unsigned char hash[SHA256_DIGEST_LENGTH];\n    SHA256_CTX sha256;\n    SHA256_Init(&sha256);\n    SHA256_Update(&sha256, data.c_str(), data.size());\n    SHA256_Final(hash, &sha256);\n\n    std::stringstream ss;\n    for (int i = 0; i < SHA256_DIGEST_LENGTH; ++i) {\n        ss << std::hex << std::setw(2) << std::setfill('0') << (int)hash[i];\n    }\n    return ss.str();\n}\n\nint main() {\n    std::string data = \"example data\";\n    std::string hash = computeSHA256(data);\n    std::cout << \"SHA-256 hash: \" << hash << std::endl;\n    return 0;\n}\n```\n\n### Library Dependencies\n\nTo execute the above code, you need the following library:\n\n- OpenSSL\n\nEnsure that OpenSSL is installed on your system and linked during compilation. You can compile the code using:\n\n```bash\ng++ -o hash_example hash_example.cpp -lssl -lcrypto\n```\n\n### Relevant OWASP Resources\n\n- [OWASP Cryptographic Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html)\n- [OWASP Top Ten](https://owasp.org/www-project-top-ten/)\n\n### Common Weakness Enumeration (CWE)\n\n- [CWE-327: Use of a Broken or Risky Cryptographic Algorithm](https://cwe.mitre.org/data/definitions/327.html)"
+                "markdown": "This finding is considered a genuine vulnerability because the analysis detected a possible undefined behavior risk due to overlapping memory regions between the source and destination in a memory copy operation. The dataflow analysis indicates that the destination buffer may alias or overlap with the source buffer, which can cause undefined behavior when using functions like memcpy. Additionally, there is no evidence of explicit checks or guards to prevent this overlap, and the source pointer may also be null, increasing the risk. The destination buffer is a void pointer, and its capacity is not known, which further increases the uncertainty and risk. These factors together make this a high-confidence, actionable issue.\n\n## In Context Remediation 0\nTo prevent undefined behavior when copying memory, ensure that the source and destination memory regions do not overlap. If there is any possibility of overlap, use `std::memmove` instead of `std::memcpy`, as `memmove` is designed to handle overlapping regions safely. Additionally, check that the source pointer is not null before performing the copy to avoid null pointer dereference.\n\n```cpp\nif (data != nullptr && dataBytes.data() != nullptr) {\n    std::memmove(data, dataBytes.data(), dataBytes.size() * sizeof(uint8_t));\n}\n```\n\n## References\n- [OWASP C-Based Toolchain Hardening Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/C-Based_Toolchain_Hardening_Cheat_Sheet.html)\n- [CWE-119: Improper Restriction of Operations within the Bounds of a Memory Buffer](https://cwe.mitre.org/data/definitions/119.html)\n- [CWE-787: Out-of-bounds Write](https://cwe.mitre.org/data/definitions/787.html)\n- [OWASP Buffer Overflow](https://owasp.org/www-community/vulnerabilities/Buffer_Overflow)\n\n\n## In Context Remediation 0\nTo prevent undefined behavior when copying memory where the source and destination may overlap, use `std::memmove` instead of `std::memcpy`. `std::memmove` is designed to handle overlapping memory regions safely. Replace the original call with:\n\n```cpp\nstd::memmove(data, dataBytes.data(), dataBytes.size() * sizeof(uint8_t));\n```\n\nAdditionally, ensure that both `data` and `dataBytes.data()` are not null before performing the copy to avoid null pointer dereference. For example:\n\n```cpp\nif (data != nullptr && dataBytes.data() != nullptr) {\n    std::memmove(data, dataBytes.data(), dataBytes.size() * sizeof(uint8_t));\n}\n```\n\n## References\n- [OWASP C-Based Toolchain Hardening Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/C-Based_Toolchain_Hardening_Cheat_Sheet.html)\n- [OWASP Buffer Overflow](https://owasp.org/www-community/vulnerabilities/Buffer_Overflow)\n- [CWE-119: Improper Restriction of Operations within the Bounds of a Memory Buffer](https://cwe.mitre.org/data/definitions/119.html)\n- [CWE-120: Buffer Copy without Checking Size of Input ('Classic Buffer Overflow')](https://cwe.mitre.org/data/definitions/120.html)\n- [CWE-787: Out-of-bounds Write](https://cwe.mitre.org/data/definitions/787.html)\n\n___\n"
               },
               "properties": {
                 "tags": [
-                  "DS126858"
+                  "DS121708"
                 ]
               }
             },
             {
-              "id": "glog-84b18554-b960-4506-a83d-30464d666cf4",
+              "id": "0eb58aca-6284-324a-adf4-301183f9abed",
               "help": {
                 "text": "",
-                "markdown": "### Description\n\nIn C++ programming, using `srand(time(NULL))` or a fixed value to seed randomness can lead to predictable random number sequences. This is a security vulnerability because attackers can predict the sequence of random numbers generated, which can be exploited in various ways, such as guessing session tokens, cryptographic keys, or other sensitive data that rely on randomness for security.\n\n### General Mitigation Advice\n\nTo mitigate this vulnerability, use a more secure source of randomness for seeding. On modern systems, you can use libraries that provide cryptographically secure random number generators. For example, C++11 and later versions offer the `<random>` library, which can be used to generate random numbers securely.\n\n### Source Code Fix Recommendation\n\nInstead of using `srand(time(NULL))`, use the `<random>` library to generate random numbers securely. Here is an example of how to do this:\n\n```cpp\n#include <iostream>\n#include <random>\n\nint main() {\n    // Create a random device and seed the random number generator\n    std::random_device rd;\n    std::mt19937 gen(rd());\n\n    // Define the range for random numbers\n    std::uniform_int_distribution<> dis(1, 100);\n\n    // Generate a random number\n    int random_number = dis(gen);\n\n    std::cout << \"Random number: \" << random_number << std::endl;\n\n    return 0;\n}\n```\n\n### Library Dependencies\n\nTo execute the above code properly, the following library dependencies are required:\n\n- `<iostream>`: For input and output stream operations.\n- `<random>`: For generating random numbers using modern C++ facilities.\n\n### OWASP Resources\n\n- [OWASP Cryptographic Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html)\n- [OWASP Secure Coding Practices - Quick Reference Guide](https://owasp.org/www-pdf-archive/OWASP_SCP_Quick_Reference_Guide_v2.pdf)\n\n### Common Weakness Enumeration (CWE)\n\n- [CWE-338: Use of Cryptographically Weak Pseudo-Random Number Generator (PRNG)](https://cwe.mitre.org/data/definitions/338.html)"
+                "markdown": "## Description\n\nIn C++ programming, using system time or a static value for seeding randomness can lead to a vulnerability. This is because the seed value can be predicted, which in turn makes the random numbers generated by the `rand()` function predictable. This can be exploited by an attacker to predict the behavior of the program, leading to potential security risks.\n\n## Mitigation Advice\n\nTo mitigate this vulnerability, use a source of randomness that is less predictable. For example, you can use a random device to generate the seed. This will make it much harder for an attacker to predict the seed and therefore the random numbers generated by the `rand()` function.\n\n## Source Code Fix Recommendation\n\nHere is a code fix for the vulnerability:\n\n```cpp\n#include <random>\n\nstd::random_device rd;\nstd::mt19937 mt(rd());\nstd::uniform_real_distribution<double> dist(1.0, 10.0);\n\nfor (int i=0; i<16; ++i)\n    std::cout << dist(mt) << \"\\n\";\n```\n\nIn this code, `std::random_device` is a uniformly-distributed integer random number generator that produces non-deterministic random numbers. `std::mt19937` is a Mersenne Twister pseudo-random generator of 32-bit numbers with a state size of 19937 bits. `std::uniform_real_distribution` produces random floating-point numbers in the range [a, b), and output distributions of each value are (ideally) equal.\n\n## Library Dependencies\n\nThe code example requires the following library dependencies:\n\n- `<random>`: This library is used to generate random numbers.\n- `<iostream>`: This library is used for input/output operations.\n\n## References\n\n- [CWE-330: Use of Insufficiently Random Values](https://cwe.mitre.org/data/definitions/330.html)"
               },
               "properties": {
                 "tags": [
@@ -84,10 +48,22 @@
               }
             },
             {
-              "id": "glog-7af960f7-3089-4dff-aa57-712a97e5037a",
+              "id": "1086aca6-e5d0-38bd-b235-2c174ce8fa42",
               "help": {
                 "text": "",
-                "markdown": "### Description\n\nIn C++ programming, using weak or non-cryptographic random number generators, such as the `rand()` function, can lead to vulnerabilities, especially in security-sensitive applications. The `rand()` function is not suitable for cryptographic purposes because it generates predictable sequences of numbers if the seed is known. This predictability can be exploited by attackers to compromise the security of the application.\n\n### General Mitigation Advice\n\nTo mitigate this vulnerability, use a cryptographically secure random number generator. In C++, the `<random>` library provides better alternatives, such as `std::random_device` and `std::mt19937`, which can be used to generate random numbers more securely.\n\n### Source Code Fix Recommendation\n\nReplace the use of `rand()` with a more secure random number generator from the `<random>` library. Here is an example of how to do this:\n\n```cpp\n#include <iostream>\n#include <random>\n\nint main() {\n    // Create a random device and a Mersenne Twister random number generator\n    std::random_device rd;\n    std::mt19937 gen(rd());\n\n    // Define a distribution range\n    std::uniform_int_distribution<> dis(1, 100);\n\n    // Generate a random number\n    int random_number = dis(gen);\n\n    std::cout << \"Secure random number: \" << random_number << std::endl;\n\n    return 0;\n}\n```\n\n### Library Dependencies\n\nTo execute the above code example properly, the following library is required:\n\n- `<random>`: This library provides facilities for generating random numbers.\n\n### OWASP Resources\n\n- [OWASP Cryptographic Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html)\n\n### Common Weakness Enumeration (CWE)\n\n- [CWE-338: Use of Cryptographically Weak Pseudo-Random Number Generator (PRNG)](https://cwe.mitre.org/data/definitions/338.html)"
+                "markdown": "This finding is considered a genuine vulnerability because the classification indicates a risk of undefined behavior due to possible overlap between the source and destination memory regions in the memory copy operation. The analysis detected that the destination and source may overlap based on data flow, which can cause undefined behavior with functions like memcpy. Additionally, there is no evidence of a guard or check to prevent this overlap, and the source pointer may also be null at this point, further increasing the risk. The destination buffer's capacity is not known, and the count is not proven safe. These factors together make this a high-confidence, actionable issue that should be addressed to prevent potential memory corruption or crashes.\n\n## In Context Remediation\nTo prevent undefined behavior when copying memory where the source and destination regions may overlap, use `std::memmove` instead of `std::memcpy`. `std::memmove` is designed to handle overlapping memory regions safely. Replace the original call with:\n\n```cpp\nstd::memmove(scale, scaleBytes.data(), scaleBytes.size() * sizeof(uint8_t));\n```\n\nAdditionally, ensure that `scaleBytes.data()` is not null before performing the copy to avoid dereferencing a null pointer:\n\n```cpp\nif (!scaleBytes.empty() && scaleBytes.data() != nullptr) {\n    std::memmove(scale, scaleBytes.data(), scaleBytes.size() * sizeof(uint8_t));\n}\n```\n\n## References\n- [OWASP C-Based Toolchain Hardening Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/C-Based_Toolchain_Hardening_Cheat_Sheet.html)\n- [CWE-119: Improper Restriction of Operations within the Bounds of a Memory Buffer](https://cwe.mitre.org/data/definitions/119.html)\n- [CWE-787: Out-of-bounds Write](https://cwe.mitre.org/data/definitions/787.html)\n- [OWASP Buffer Overflow](https://owasp.org/www-community/vulnerabilities/Buffer_Overflow)\n\n___\n"
+              },
+              "properties": {
+                "tags": [
+                  "DS121708"
+                ]
+              }
+            },
+            {
+              "id": "f69951f0-3f96-339f-819c-8c2ec010b633",
+              "help": {
+                "text": "",
+                "markdown": "## Description\n\nIn C++ programming, the vulnerability \"Avoid Using Non-Cryptographic or Weak Random Number Generators\" refers to the use of weak or non-cryptographic random number generators that can lead to predictable or easily guessable values. This can be exploited by attackers to predict the outcome of the program, leading to security breaches.\n\nThe `rand()` function in C++ is a weak random number generator as it uses a deterministic algorithm and can produce predictable numbers if the seed is known. This makes it unsuitable for generating random numbers in security-sensitive contexts.\n\n## Mitigation Advice\n\nTo mitigate this vulnerability, use a strong, cryptographic random number generator instead of `rand()`. In C++, you can use functions provided by libraries like `<random>` which offer a variety of generators that produce numbers with a far greater degree of randomness.\n\n## Source Code Fix Recommendation\n\nReplace the `rand()` function with a cryptographic random number generator. Here is an example using the `<random>` library:\n\n```cpp\n#include <random>\n\nstd::random_device rd;\nstd::mt19937 gen(rd());\nstd::uniform_int_distribution<> distr(0, 100); // Adjust range as needed\n\nf[i] = fill_zero ? 0 : distr(gen);\n```\n\n## Library Dependencies\n\nThe code example requires the `<random>` library.\n\n## References\n\n- [CWE-338: Use of Cryptographically Weak PRNG](https://cwe.mitre.org/data/definitions/338.html)"
               },
               "properties": {
                 "tags": [
@@ -96,10 +72,10 @@
               }
             },
             {
-              "id": "glog-3f3ee49e-7b1e-4584-bb62-ce75b9e1d75d",
+              "id": "8e2600eb-5dd6-3a0c-9f46-cdf35fba93fe",
               "help": {
                 "text": "",
-                "markdown": "## Description\n\nThe `memcpy` function in C++ is used to copy a block of memory from one location to another. This function is vulnerable to buffer overflow attacks if the size of the data being copied is larger than the size of the destination buffer. In the provided code snippet, `memcpy(data, dataBytes.data(), dataBytes.size())`, there is no check to ensure that the size of `dataBytes` is not larger than the size of `data`. This can lead to a buffer overflow, which can cause the program to crash or behave unpredictably, and may allow an attacker to execute arbitrary code.\n\n## Mitigation Advice\n\nTo mitigate this vulnerability, you should always ensure that the destination buffer is large enough to hold the data being copied. This can be done by checking the size of the data and the size of the buffer before calling `memcpy`. If the data is larger than the buffer, you should either resize the buffer or truncate the data to fit.\n\n## Source Code Fix Recommendation\n\nHere is a recommended fix for the provided code snippet:\n\n```cpp\nif (dataBytes.size() <= sizeof(data)) {\n    memcpy(data, dataBytes.data(), dataBytes.size());\n} else {\n    // Handle error: dataBytes is too large for data\n}\n```\n\nIn this code, we first check if the size of `dataBytes` is less than or equal to the size of `data`. If it is, we proceed with the `memcpy`. If it is not, we handle the error in some way, such as by throwing an exception or returning an error code.\n\n## Library Dependencies\n\nThe provided code snippet requires the following library dependencies:\n\n- `<cstring>`: This library provides the `memcpy` function.\n- `<vector>`: This library provides the `std::vector` class, which is presumably the type of `dataBytes`.\n\n## OWASP Resources\n\n- [Buffer Overflow](https://owasp.org/www-community/vulnerabilities/Buffer_Overflow)\n- [CWE-120: Buffer Copy without Checking Size of Input ('Classic Buffer Overflow')](https://cwe.mitre.org/data/definitions/120.html)\n\nPlease note that these links are subject to change and may not always be accessible. Always refer to the latest OWASP and CWE documentation for the most accurate and up-to-date information."
+                "markdown": "This finding is classified as a genuine vulnerability because it is marked as a high-confidence undefined behavior risk due to possible overlap between the source and destination memory regions in a memory copy operation. The analysis detected that the destination and source may refer to overlapping memory through data flow, which can cause undefined behavior with functions like memcpy. Additionally, there is no evidence of a guard or check to prevent this overlap, and the source pointer may also be null, which further increases the risk. The destination is a void pointer, and its capacity is not known, making it difficult to guarantee safety. These factors together indicate a real risk of undefined behavior and potential security issues.\n\n## In Context Remediation\nTo prevent undefined behavior when copying memory, ensure that the source and destination memory regions do not overlap. If there is any possibility of overlap, use `std::memmove` instead of `std::memcpy`, as `memmove` is designed to handle overlapping regions safely. Additionally, check that the source pointer is not null before performing the copy to avoid null pointer dereference.\n\n```cpp\nif (data != nullptr && dataBytes.data() != nullptr) {\n    // Use memmove to safely handle possible overlap\n    std::memmove(data, dataBytes.data(), dataBytes.size() * sizeof(uint8_t));\n}\n```\n\n## References\n- [OWASP: Buffer Overflow](https://owasp.org/www-community/vulnerabilities/Buffer_Overflow)\n- [CWE-119: Improper Restriction of Operations within the Bounds of a Memory Buffer](https://cwe.mitre.org/data/definitions/119.html)\n- [CWE-787: Out-of-bounds Write](https://cwe.mitre.org/data/definitions/787.html)\n- [C-Based Toolchain Hardening Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/C-Based_Toolchain_Hardening_Cheat_Sheet.html)\n\n___\n"
               },
               "properties": {
                 "tags": [
@@ -108,46 +84,10 @@
               }
             },
             {
-              "id": "glog-05ca24fb-12a8-4bfc-b2d9-c44ff643fef1",
+              "id": "2792a77e-fa57-394c-b938-a1bf05a19225",
               "help": {
                 "text": "",
-                "markdown": "## Description\n\nThe `memcpy` function in C++ is used to copy a block of memory from one location to another. This function is vulnerable to buffer overflow attacks if the size of the data being copied is larger than the size of the destination buffer. In the provided code snippet, `memcpy(scale, scaleBytes.data(), scaleBytes.size())`, there is no check to ensure that the size of `scaleBytes` is not larger than the size of `scale`. This can lead to a buffer overflow, which can cause the program to crash or behave unpredictably, and may allow an attacker to execute arbitrary code.\n\n## Mitigation Advice\n\nTo mitigate this vulnerability, you should always ensure that the destination buffer is large enough to hold the data being copied. This can be done by checking the size of the source data and the size of the destination buffer before calling `memcpy`.\n\n## Source Code Fix Recommendation\n\nHere is a recommended fix for the provided code snippet:\n\n```cpp\nif (scaleBytes.size() <= sizeof(scale)) {\n    memcpy(scale, scaleBytes.data(), scaleBytes.size());\n} else {\n    // Handle error\n}\n```\n\nIn this fixed code, we first check if the size of `scaleBytes` is less than or equal to the size of `scale`. If it is, we proceed with the `memcpy`. If it is not, we handle the error in a way that is appropriate for the specific program.\n\n## Library Dependencies\n\nThe provided code snippet requires the following library dependencies:\n\n- `<cstring>`: This library provides the `memcpy` function.\n- `<vector>`: This library is required if `scaleBytes` is a `std::vector`.\n\n## OWASP and CWE Links\n\n- [OWASP Buffer Overflow](https://owasp.org/www-community/vulnerabilities/Buffer_Overflow)\n- [CWE-120: Buffer Copy without Checking Size of Input ('Classic Buffer Overflow')](https://cwe.mitre.org/data/definitions/120.html)"
-              },
-              "properties": {
-                "tags": [
-                  "DS121708"
-                ]
-              }
-            },
-            {
-              "id": "glog-df4ac9d2-797c-4474-966c-ad6a2c6c85ab",
-              "help": {
-                "text": "",
-                "markdown": "## Description\n\nThe `strlen()` function in C++ is used to find the length of a string. However, it can lead to vulnerabilities if not used properly. The function counts the number of characters in a string until it reaches a null character (`\\0`). If the string is not null-terminated, `strlen()` will continue reading memory until it encounters a null character, potentially leading to buffer overflows, memory corruption, and other undefined behaviors.\n\n## Mitigation Advice\n\nTo mitigate this issue, always ensure that your strings are null-terminated. Avoid using `strlen()` on strings that may not be null-terminated. Instead, consider using safer alternatives such as `strnlen()`, which takes an additional parameter to specify the maximum number of characters to be examined.\n\n## Source Code Fix Recommendation\n\nInstead of:\n\n```cpp\n#include <cstring>\n\nconst char* prefix = \"example\";\nsize_t length = strlen(prefix);\n```\n\nUse:\n\n```cpp\n#include <cstring>\n\nconst char* prefix = \"example\";\nsize_t length = strnlen(prefix, MAX_LENGTH);\n```\n\nWhere `MAX_LENGTH` is the maximum expected length of the string.\n\n## Library Dependencies\n\nThe code example requires the `<cstring>` library.\n\n## References\n\n- [OWASP C++ Secure Coding Practices](https://cheatsheetseries.owasp.org/cheatsheets/C-Based_Toolchain_Hardening_Cheat_Sheet.html)\n\nPlease note that the links provided are accessible to anonymous users at the time of writing this report."
-              },
-              "properties": {
-                "tags": [
-                  "DS140021"
-                ]
-              }
-            },
-            {
-              "id": "glog-cbc4ca26-3301-4fdf-bf1c-f89caccc0c66",
-              "help": {
-                "text": "",
-                "markdown": "## Description\n\nThe `memcpy` function in C++ is used to copy a block of memory from one location to another. This function is vulnerable to buffer overflow attacks if the size of the data being copied is larger than the size of the destination buffer. In the provided code snippet, `memcpy(data, dataBytes.data(), dataBytes.size())`, there is no check to ensure that the size of `dataBytes` is not larger than the size of `data`. This can lead to a buffer overflow, which can cause the program to crash or behave unpredictably, and may allow an attacker to execute arbitrary code.\n\n## Mitigation Advice\n\nTo mitigate this vulnerability, you should always ensure that the destination buffer is large enough to hold the data being copied. This can be done by checking the size of the data and the size of the buffer before calling `memcpy`. If the data is larger than the buffer, you should either resize the buffer or truncate the data to fit.\n\n## Source Code Fix Recommendation\n\nHere is a recommended fix for the provided code snippet:\n\n```cpp\nif (dataBytes.size() <= sizeof(data)) {\n    memcpy(data, dataBytes.data(), dataBytes.size());\n} else {\n    // Handle error: dataBytes is too large for data\n}\n```\n\nIn this code, we first check if the size of `dataBytes` is less than or equal to the size of `data`. If it is, we proceed with the `memcpy`. If it is not, we handle the error in some way, such as by throwing an exception or returning an error code.\n\n## Library Dependencies\n\nThe provided code snippet requires the following library dependencies:\n\n- `<cstring>`: This library provides the `memcpy` function.\n- `<vector>`: This library provides the `std::vector` class, which is presumably the type of `dataBytes`.\n\n## OWASP Resources\n\n- [Buffer Overflow](https://owasp.org/www-community/vulnerabilities/Buffer_Overflow)\n- [CWE-120: Buffer Copy without Checking Size of Input ('Classic Buffer Overflow')](https://cwe.mitre.org/data/definitions/120.html)\n\nPlease note that these links are subject to change and may not always be accessible. Always refer to the latest OWASP and CWE documentation for the most accurate and up-to-date information."
-              },
-              "properties": {
-                "tags": [
-                  "DS121708"
-                ]
-              }
-            },
-            {
-              "id": "glog-80dedf7b-87bc-4a59-a99c-7c1980c47be9",
-              "help": {
-                "text": "",
-                "markdown": "### Description\n\nThe \"Vulnerable/Compromised Hash Algorithm\" vulnerability in C++ refers to the use of cryptographic hash functions that are considered weak or broken, such as MD2. MD2 is an older hash function that is no longer considered secure due to its susceptibility to collision attacks, where two different inputs produce the same hash output. This vulnerability can lead to security issues such as data integrity violations and unauthorized data access.\n\n### General Mitigation Advice\n\n1. **Avoid Using Weak Hash Functions**: Replace MD2 with a more secure hash function like SHA-256 or SHA-3.\n2. **Use Well-Maintained Libraries**: Utilize cryptographic libraries that are actively maintained and updated.\n3. **Regularly Update Dependencies**: Ensure that all cryptographic libraries are up-to-date to benefit from the latest security patches.\n\n### Source Code Fix Recommendation\n\nBelow is an example of how to replace MD2 with SHA-256 using the OpenSSL library in C++.\n\n```cpp\n#include <openssl/sha.h>\n#include <iostream>\n#include <iomanip>\n#include <sstream>\n#include <string>\n\n// Function to compute SHA-256 hash\nstd::string computeSHA256(const std::string& data) {\n    unsigned char hash[SHA256_DIGEST_LENGTH];\n    SHA256_CTX sha256;\n    SHA256_Init(&sha256);\n    SHA256_Update(&sha256, data.c_str(), data.size());\n    SHA256_Final(hash, &sha256);\n\n    std::stringstream ss;\n    for (int i = 0; i < SHA256_DIGEST_LENGTH; ++i) {\n        ss << std::hex << std::setw(2) << std::setfill('0') << (int)hash[i];\n    }\n    return ss.str();\n}\n\nint main() {\n    std::string data = \"example data\";\n    std::string hash = computeSHA256(data);\n    std::cout << \"SHA-256 hash: \" << hash << std::endl;\n    return 0;\n}\n```\n\n### Library Dependencies\n\nTo execute the above code, you need the following library:\n\n- OpenSSL\n\nEnsure that OpenSSL is installed on your system and linked during compilation. You can compile the code using:\n\n```bash\ng++ -o hash_example hash_example.cpp -lssl -lcrypto\n```\n\n### Relevant OWASP Resources\n\n- [OWASP Cryptographic Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html)\n- [OWASP Top Ten](https://owasp.org/www-project-top-ten/)\n\n### Common Weakness Enumeration (CWE)\n\n- [CWE-327: Use of a Broken or Risky Cryptographic Algorithm](https://cwe.mitre.org/data/definitions/327.html)"
+                "markdown": "## Description\n\n\"Vulnerable Hash Algorithm\" vulnerability refers to the use of weak or broken cryptographic hash functions in a C++ program. Cryptographic hash functions are used to ensure the integrity and security of data. However, if a weak or broken hash function is used, it can lead to various security issues such as collision attacks, preimage attacks, and others. This can potentially allow an attacker to manipulate the data without being detected.\n\n## Mitigation Advice\n\nTo mitigate this vulnerability, it is recommended to use strong and secure hash functions such as SHA-256, SHA-3, or others. Avoid using weak or broken hash functions such as MD5, SHA-1, or others. Also, it is important to keep the hash functions and cryptographic libraries up-to-date to ensure the highest level of security.\n\n## Source Code Fix Recommendation\n\nThe source code fix would depend on the specific hash function being used in the `getPackageInfo` function. However, if for example MD5 is being used, it can be replaced with a stronger hash function like SHA-256. Here is a general example:\n\n```cpp\n// Old code using MD5\nMD5 md5;\nmd5.update(data);\nstd::string hash = md5.finalize();\n\n// New code using SHA-256\nSHA256 sha256;\nsha256.update(data);\nstd::string hash = sha256.finalize();\n```\n\n## Library Dependencies\n\nThe library dependencies required by the code example would depend on the specific implementation of the `getPackageInfo` function. However, it is likely that it would require some cryptographic library for the hash function, and possibly some other libraries for handling the package information.\n\n## OWASP Resources\n\n- [OWASP Cryptographic Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html)\n\n## Common Weakness Enumeration (CWE)\n\n- [CWE-327: Use of a Broken or Risky Cryptographic Algorithm](https://cwe.mitre.org/data/definitions/327.html)\n\nPlease note that the links provided are active and accessible for anonymous users at the time of writing this report."
               },
               "properties": {
                 "tags": [
@@ -156,10 +96,70 @@
               }
             },
             {
-              "id": "glog-3b4e142b-51fd-4a6e-a47d-319813412b41",
+              "id": "74a81a92-2915-31e6-bf42-6f1eeb046350",
               "help": {
                 "text": "",
-                "markdown": "### Description\n\nThe \"Vulnerable/Compromised Hash Algorithm\" vulnerability in C++ refers to the use of cryptographic hash functions that are considered weak or broken, such as MD2. MD2 is an older hash function that is no longer considered secure due to its susceptibility to collision attacks, where two different inputs produce the same hash output. This vulnerability can lead to security issues such as data integrity violations and unauthorized data access.\n\n### General Mitigation Advice\n\n1. **Avoid Using Weak Hash Functions**: Replace MD2 with a more secure hash function like SHA-256 or SHA-3.\n2. **Use Well-Maintained Libraries**: Utilize cryptographic libraries that are actively maintained and updated.\n3. **Regularly Update Dependencies**: Ensure that all cryptographic libraries are up-to-date to benefit from the latest security patches.\n\n### Source Code Fix Recommendation\n\nBelow is an example of how to replace MD2 with SHA-256 using the OpenSSL library in C++.\n\n```cpp\n#include <openssl/sha.h>\n#include <iostream>\n#include <iomanip>\n#include <sstream>\n#include <string>\n\n// Function to compute SHA-256 hash\nstd::string computeSHA256(const std::string& data) {\n    unsigned char hash[SHA256_DIGEST_LENGTH];\n    SHA256_CTX sha256;\n    SHA256_Init(&sha256);\n    SHA256_Update(&sha256, data.c_str(), data.size());\n    SHA256_Final(hash, &sha256);\n\n    std::stringstream ss;\n    for (int i = 0; i < SHA256_DIGEST_LENGTH; ++i) {\n        ss << std::hex << std::setw(2) << std::setfill('0') << (int)hash[i];\n    }\n    return ss.str();\n}\n\nint main() {\n    std::string data = \"example data\";\n    std::string hash = computeSHA256(data);\n    std::cout << \"SHA-256 hash: \" << hash << std::endl;\n    return 0;\n}\n```\n\n### Library Dependencies\n\nTo execute the above code, you need the following library:\n\n- OpenSSL\n\nEnsure that OpenSSL is installed on your system and linked during compilation. You can compile the code using:\n\n```bash\ng++ -o hash_example hash_example.cpp -lssl -lcrypto\n```\n\n### Relevant OWASP Resources\n\n- [OWASP Cryptographic Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html)\n- [OWASP Top Ten](https://owasp.org/www-project-top-ten/)\n\n### Common Weakness Enumeration (CWE)\n\n- [CWE-327: Use of a Broken or Risky Cryptographic Algorithm](https://cwe.mitre.org/data/definitions/327.html)"
+                "markdown": "The finding is classified as 'Likely Vulnerable: malloc result used without null check (possible null deref)', which indicates a high-confidence, actionable issue. The malloc call assigns its result to 'link_info' and is immediately used as the destination in a memset call on the next line, without any check for a NULL return value. There is no zero guard or overflow guard present, and the first use is a memory operation (memset) that would dereference the pointer. No null guard is present before the first use, which increases the risk of a null pointer dereference if malloc fails. The presence of a cast does not mitigate the risk. The pointer is freed in the method and passed to another call, but these do not affect the immediate risk. Based on these factors, this is a genuine vulnerability with a low probability of being a false positive.\n\n## In Context Remediation\nAlways check the result of malloc for NULL before using the allocated memory. If malloc fails, handle the error appropriately (e.g., return an error code, log the failure, or clean up resources). For example, if your original code is:\n\n```c\nlink_info = (type *)malloc(link_info_sz);\nmemset(link_info, 0, link_info_sz);\n```\n\nA safe remediation would be:\n\n```c\nlink_info = (type *)malloc(link_info_sz);\nif (link_info == NULL) {\n    // Handle allocation failure (e.g., return error, log, cleanup)\n    return ERROR_CODE;\n}\nmemset(link_info, 0, link_info_sz);\n```\n\nThis ensures that memset is only called if the allocation succeeded, preventing a possible null pointer dereference.\n\n## References\n- [OWASP C-Based Toolchain Hardening Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/C-Based_Toolchain_Hardening_Cheat_Sheet.html)\n- [CWE-690: Unchecked Return Value to NULL Pointer Dereference](https://cwe.mitre.org/data/definitions/690.html)\n- [OWASP Top Ten](https://owasp.org/www-project-top-ten/)\n\n___\n"
+              },
+              "properties": {
+                "tags": [
+                  "DS161085"
+                ]
+              }
+            },
+            {
+              "id": "e35f7ee7-5d82-30b6-a331-c7409da6d397",
+              "help": {
+                "text": "",
+                "markdown": "## Description\n\nA \"Vulnerable Hash Algorithm\" vulnerability in C++ refers to the use of weak or broken cryptographic hash functions. These functions are susceptible to various types of attacks, such as collision attacks, preimage attacks, and second preimage attacks. \n\nIn the context of C++, the MD2 hash function is considered weak and vulnerable. It is a cryptographic hash function with a 128-bit hash value. It was widely used for securing passwords and other sensitive data. However, it is now considered to be broken and unsuitable for further use.\n\n## Mitigation Advice\n\nTo mitigate this vulnerability, it is recommended to use stronger hash functions such as SHA-256 or SHA-3. These hash functions are currently considered secure and are not known to have any significant vulnerabilities.\n\n## Source Code Fix Recommendation\n\nReplace the use of MD2 with a stronger hash function. For example, if you are using the OpenSSL library, you can replace the use of the `MD2` function with the `SHA256` function.\n\n```cpp\n// Old vulnerable code\nunsigned char digest[MD2_DIGEST_LENGTH];\nMD2((unsigned char*)&data, sizeof(data), (unsigned char*)&digest); \n\n// Recommended fix\nunsigned char digest[SHA256_DIGEST_LENGTH];\nSHA256((unsigned char*)&data, sizeof(data), (unsigned char*)&digest);\n```\n\n## Library Dependencies\n\nThe OpenSSL library is required for the code example to execute properly.\n\n## References\n\n- [OWASP Cryptographic Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html)\n- [CWE-327: Use of a Broken or Risky Cryptographic Algorithm](https://cwe.mitre.org/data/definitions/327.html)"
+              },
+              "properties": {
+                "tags": [
+                  "DS126858"
+                ]
+              }
+            },
+            {
+              "id": "8c1f38fc-8315-395e-a05e-ecd7080d447b",
+              "help": {
+                "text": "",
+                "markdown": "## Description\n\nA \"Vulnerable Hash Algorithm\" vulnerability in C++ programming language refers to the use of weak or broken cryptographic hash functions. Cryptographic hash functions are mathematical operations run on digital data; by comparing the computed hash (the output from execution of the algorithm) to a known and expected hash value, a person can determine the data's integrity. A weak hash algorithm can lead to situations where an attacker can easily guess the input data given the hash output, leading to potential security breaches.\n\n## Mitigation Advice\n\nTo mitigate this vulnerability, it is recommended to use strong and well-vetted cryptographic hash functions such as SHA-256 or SHA-3. Avoid using deprecated or weak hash functions like MD5 or SHA-1. \n\n## Source Code Fix Recommendation\n\nThe code snippet provided does not seem to involve any cryptographic hash functions, so it's hard to provide a specific fix. However, if a hash function was being used, the fix would involve replacing the weak hash function with a stronger one. \n\nFor example, if the code was using MD5, it could be replaced with SHA-256 as follows:\n\n```cpp\n// Old code using MD5\nstd::hash<std::string> hash_fn;\nsize_t hash = hash_fn(\"pkgmgr\");\n\n// New code using SHA-256\nCryptoPP::SHA256 hash_fn;\nstd::string hash = \"\";\nCryptoPP::StringSource(\"pkgmgr\", true, new CryptoPP::HashFilter(hash_fn, new CryptoPP::HexEncoder(new CryptoPP::StringSink(hash))));\n```\n\n## Library Dependencies\n\nThe code snippet provided does not seem to involve any specific library dependencies. However, if the code was using a hash function, it would require a cryptographic library. For the example provided above, the Crypto++ library would be required.\n\n## References\n\n- [OWASP Cryptographic Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html)\n- [CWE-327: Use of a Broken or Risky Cryptographic Algorithm](https://cwe.mitre.org/data/definitions/327.html)\n\nPlease note that the links provided are active and accessible for anonymous users at the time of writing this report."
+              },
+              "properties": {
+                "tags": [
+                  "DS126858"
+                ]
+              }
+            },
+            {
+              "id": "a684f78f-8084-30da-bbd7-f89af8bc6095",
+              "help": {
+                "text": "",
+                "markdown": "## Description\n\nThe `strlen` function in C++ is used to calculate the length of a string. However, it can lead to vulnerabilities if not used properly. The function counts the number of characters in a string up to, but not including, the terminating null character. If the string is not null-terminated, `strlen` will continue reading memory until it encounters a null byte, potentially leading to buffer overflows, memory corruption, and other undefined behavior.\n\n## Mitigation Advice\n\nTo mitigate this vulnerability, always ensure that your strings are null-terminated. This can be done by initializing your strings with a null character (`'\\0'`) at the end, or by using functions that automatically null-terminate the string for you.\n\nAdditionally, consider using safer alternatives to `strlen`, such as `strnlen`, which takes a maximum length parameter and will not read past this length, even if it does not encounter a null byte.\n\n## Source Code Fix Recommendation\n\nInstead of:\n\n```cpp\nprefix_len = strlen(prefix);\n```\n\nYou could use:\n\n```cpp\nprefix_len = strnlen(prefix, MAX_PREFIX_LEN);\n```\n\nWhere `MAX_PREFIX_LEN` is the maximum expected length of the prefix.\n\n## Library Dependencies\n\nThe `strlen` function is part of the C standard library, so no additional libraries are needed.\n\n## References\n\n- [OWASP C++ Secure Coding Practices](https://cheatsheetseries.owasp.org/cheatsheets/C-Based_Toolchain_Hardening_Cheat_Sheet.html)\n- [CWE-126: Buffer Over-read](https://cwe.mitre.org/data/definitions/126.html)"
+              },
+              "properties": {
+                "tags": [
+                  "DS140021"
+                ]
+              }
+            },
+            {
+              "id": "446744a2-b55c-313a-8f35-91c49b71505a",
+              "help": {
+                "text": "",
+                "markdown": "## Description\n\n\"Detected Prohibited C Function\" vulnerability in C++ refers to the use of insecure C library functions that can lead to various security issues such as buffer overflows, format string vulnerabilities, integer overflows, etc. In this case, the `fopen` function is used, which can lead to vulnerabilities if the file path is not properly validated or controlled.\n\n## Mitigation Advice\n\nTo mitigate this vulnerability, it is recommended to use safer alternatives to these functions provided by the C++ Standard Library. In this case, instead of using `fopen`, you can use the `fstream` class from the C++ Standard Library which provides file handling capabilities.\n\n## Source Code Fix Recommendation\n\nHere is a fixed version of the code using `fstream`:\n\n```cpp\n#include <fstream>\n#include <string>\n\nstd::string logfile;\n// ... (initialize logfile)\nstd::fstream pFile(logfile, std::ios::in | std::ios::out);\n```\n\n## Library Dependencies\n\nThe code example requires the following library dependencies:\n\n- `<fstream>`: for file handling\n- `<string>`: for string handling\n\n## References\n\n- [OWASP C++](https://owasp.org/www-pdf-archive/OWASP_SCP_v2.pdf)\n- [CWE-676: Use of Potentially Dangerous Function](https://cwe.mitre.org/data/definitions/676.html)"
+              },
+              "properties": {
+                "tags": [
+                  "DS154189"
+                ]
+              }
+            },
+            {
+              "id": "c869c745-9a64-3399-bdbe-511754e10ded",
+              "help": {
+                "text": "",
+                "markdown": "## Description\n\nA \"Vulnerable Hash Algorithm\" vulnerability in C++ programming language refers to the use of weak or broken cryptographic hash functions. Cryptographic hash functions are mathematical operations run on digital data; by comparing the computed hash (the output from execution of the algorithm) to a known and expected hash value, a person can determine the data's integrity. A weak hash algorithm can lead to situations where an attacker can easily generate a different input with the same hash output, leading to potential security risks such as password cracking, data integrity issues, and other forms of data manipulation.\n\n## Mitigation Advice\n\nTo mitigate this vulnerability, it is recommended to use strong, industry-accepted cryptographic algorithms. Avoid using custom cryptographic algorithms or those known to be weak or broken. It is also important to keep up-to-date with the latest cryptographic standards and updates, as what is considered strong today may not be in the future.\n\n## Source Code Fix Recommendation\n\nThe specific vulnerability sink `this->m_pkgname = pkgname` does not directly relate to a \"Vulnerable Hash Algorithm\" vulnerability as it is a simple assignment operation. However, if `pkgname` is a result of a weak hash function, then it could be a problem. \n\nIf `pkgname` is a hashed password, for example, you should use a strong hash function like SHA-256, SHA-3, or bcrypt. Here is an example using SHA-256 from the OpenSSL library:\n\n```cpp\n#include <openssl/sha.h>\n\nstd::string hashPassword(const std::string& password) {\n    unsigned char hash[SHA256_DIGEST_LENGTH];\n    SHA256_CTX sha256;\n    SHA256_Init(&sha256);\n    SHA256_Update(&sha256, password.c_str(), password.size());\n    SHA256_Final(hash, &sha256);\n    std::stringstream ss;\n    for(int i = 0; i < SHA256_DIGEST_LENGTH; i++)\n    {\n        ss << std::hex << std::setw(2) << std::setfill('0') << (int)hash[i];\n    }\n    return ss.str();\n}\n\n// Usage\nthis->m_pkgname = hashPassword(pkgname);\n```\n\n## Library Dependencies\n\nThe above code example requires the OpenSSL library.\n\n## References\n\n- [OWASP Cryptographic Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html)\n- [CWE-327: Use of a Broken or Risky Cryptographic Algorithm](https://cwe.mitre.org/data/definitions/327.html)"
               },
               "properties": {
                 "tags": [
@@ -179,11 +179,504 @@
       "language": "en-US",
       "results": [
         {
-          "ruleId": "glog-becfc8af-6d9f-4584-a341-0c0c8c74373e",
+          "ruleId": "9847730e-3033-3a5c-a937-3b1d9c396306",
+          "kind": "fail",
+          "level": "note",
+          "message": {
+            "text": "Problematic C function detected (memcpy)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/rvs_blas.cpp"
+                },
+                "region": {
+                  "startLine": 2404,
+                  "startColumn": 13,
+                  "endLine": 2404,
+                  "endColumn": 60,
+                  "charOffset": 75769,
+                  "charLength": 47,
+                  "snippet": {
+                    "text": "memcpy(data, dataBytes.data(), dataBytes.size()",
+                    "rendered": {
+                      "text": "memcpy(data, dataBytes.data(), dataBytes.size()",
+                      "markdown": "`memcpy(data, dataBytes.data(), dataBytes.size()`"
+                    }
+                  },
+                  "sourceLanguage": "cpp"
+                }
+              }
+            }
+          ],
+          "fixes": [
+            {
+              "description": {
+                "text": "There are a number of conditions in which memcpy can introduce a vulnerability (mismatched buffer sizes, null pointers, etc.). More secure alternitives perform additional validation of the source and destination buffer"
+              },
+              "artifactChanges": [
+                {
+                  "artifactLocation": {
+                    "uri": "src/rvs_blas.cpp"
+                  },
+                  "replacements": [
+                    {
+                      "deletedRegion": {
+                        "charOffset": 75769,
+                        "charLength": 47
+                      },
+                      "insertedContent": {
+                        "text": "memcpy_s(data, <size of data>,  dataBytes.data(),  dataBytes.size()"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "DevSkimSeverity": "BestPractice",
+            "DevSkimConfidence": "High",
+            "tags": [
+              "API.DangerousAPI.ProblematicFunction"
+            ]
+          }
+        },
+        {
+          "ruleId": "2fbf1750-af36-31db-9d31-743e287bfdca",
+          "kind": "fail",
+          "level": "note",
+          "message": {
+            "text": "Problematic C function detected (memcpy)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "rvs/src/rvs_interface.cpp"
+                },
+                "region": {
+                  "startLine": 149,
+                  "startColumn": 6,
+                  "endLine": 149,
+                  "endColumn": 99,
+                  "charOffset": 4822,
+                  "charLength": 93,
+                  "snippet": {
+                    "text": "memcpy(&(rvs_session[session_idx].property), session_property, sizeof(rvs_session_property_t)",
+                    "rendered": {
+                      "text": "memcpy(&(rvs_session[session_idx].property), session_property, sizeof(rvs_session_property_t)",
+                      "markdown": "`memcpy(&(rvs_session[session_idx].property), session_property, sizeof(rvs_session_property_t)`"
+                    }
+                  },
+                  "sourceLanguage": "cpp"
+                }
+              }
+            }
+          ],
+          "fixes": [
+            {
+              "description": {
+                "text": "There are a number of conditions in which memcpy can introduce a vulnerability (mismatched buffer sizes, null pointers, etc.). More secure alternitives perform additional validation of the source and destination buffer"
+              },
+              "artifactChanges": [
+                {
+                  "artifactLocation": {
+                    "uri": "rvs/src/rvs_interface.cpp"
+                  },
+                  "replacements": [
+                    {
+                      "deletedRegion": {
+                        "charOffset": 4822,
+                        "charLength": 93
+                      },
+                      "insertedContent": {
+                        "text": "memcpy_s(&(rvs_session[session_idx].property), <size of &(rvs_session[session_idx].property)>,  session_property,  sizeof(rvs_session_property_t)"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "DevSkimSeverity": "BestPractice",
+            "DevSkimConfidence": "High",
+            "tags": [
+              "API.DangerousAPI.ProblematicFunction"
+            ]
+          }
+        },
+        {
+          "ruleId": "0eb58aca-6284-324a-adf4-301183f9abed",
           "kind": "fail",
           "level": "error",
           "message": {
-            "text": "\"Vulnerable/Compromised Hash Algorithm\""
+            "text": "Avoid using system time or static value for randomness seeding."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "iet.so/src/iet_worker.cpp"
+                },
+                "region": {
+                  "startLine": 519,
+                  "startColumn": 2,
+                  "endLine": 519,
+                  "endColumn": 13,
+                  "charOffset": 15199,
+                  "charLength": 11,
+                  "snippet": {
+                    "text": "srand(time(",
+                    "rendered": {
+                      "text": "srand(time(",
+                      "markdown": "`srand(time(`"
+                    }
+                  },
+                  "sourceLanguage": "cpp"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "DevSkimSeverity": "Critical",
+            "DevSkimConfidence": "High",
+            "tags": [
+              "Cryptography.WeakRandomness"
+            ]
+          }
+        },
+        {
+          "ruleId": "1086aca6-e5d0-38bd-b235-2c174ce8fa42",
+          "kind": "fail",
+          "level": "note",
+          "message": {
+            "text": "Problematic C function detected (memcpy)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/rvs_blas.cpp"
+                },
+                "region": {
+                  "startLine": 2388,
+                  "startColumn": 9,
+                  "endLine": 2388,
+                  "endColumn": 59,
+                  "charOffset": 74953,
+                  "charLength": 50,
+                  "snippet": {
+                    "text": "memcpy(scale, scaleBytes.data(), scaleBytes.size()",
+                    "rendered": {
+                      "text": "memcpy(scale, scaleBytes.data(), scaleBytes.size()",
+                      "markdown": "`memcpy(scale, scaleBytes.data(), scaleBytes.size()`"
+                    }
+                  },
+                  "sourceLanguage": "cpp"
+                }
+              }
+            }
+          ],
+          "fixes": [
+            {
+              "description": {
+                "text": "There are a number of conditions in which memcpy can introduce a vulnerability (mismatched buffer sizes, null pointers, etc.). More secure alternitives perform additional validation of the source and destination buffer"
+              },
+              "artifactChanges": [
+                {
+                  "artifactLocation": {
+                    "uri": "src/rvs_blas.cpp"
+                  },
+                  "replacements": [
+                    {
+                      "deletedRegion": {
+                        "charOffset": 74953,
+                        "charLength": 50
+                      },
+                      "insertedContent": {
+                        "text": "memcpy_s(scale, <size of scale>,  scaleBytes.data(),  scaleBytes.size()"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "DevSkimSeverity": "BestPractice",
+            "DevSkimConfidence": "High",
+            "tags": [
+              "API.DangerousAPI.ProblematicFunction"
+            ]
+          }
+        },
+        {
+          "ruleId": "f69951f0-3f96-339f-819c-8c2ec010b633",
+          "kind": "fail",
+          "level": "error",
+          "message": {
+            "text": "Avoid Using Non-Cryptographic or Weak Random Number Generators"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "iet.so/src/iet_worker.cpp"
+                },
+                "region": {
+                  "startLine": 473,
+                  "startColumn": 27,
+                  "endLine": 473,
+                  "endColumn": 32,
+                  "charOffset": 14159,
+                  "charLength": 5,
+                  "snippet": {
+                    "text": "rand(",
+                    "rendered": {
+                      "text": "rand(",
+                      "markdown": "`rand(`"
+                    }
+                  },
+                  "sourceLanguage": "cpp"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "DevSkimSeverity": "Important",
+            "DevSkimConfidence": "High",
+            "tags": [
+              "Cryptography.PRNG.Weak"
+            ]
+          }
+        },
+        {
+          "ruleId": "8e2600eb-5dd6-3a0c-9f46-cdf35fba93fe",
+          "kind": "fail",
+          "level": "note",
+          "message": {
+            "text": "Problematic C function detected (memcpy)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/rvs_blas.cpp"
+                },
+                "region": {
+                  "startLine": 2385,
+                  "startColumn": 9,
+                  "endLine": 2385,
+                  "endColumn": 56,
+                  "charOffset": 74815,
+                  "charLength": 47,
+                  "snippet": {
+                    "text": "memcpy(data, dataBytes.data(), dataBytes.size()",
+                    "rendered": {
+                      "text": "memcpy(data, dataBytes.data(), dataBytes.size()",
+                      "markdown": "`memcpy(data, dataBytes.data(), dataBytes.size()`"
+                    }
+                  },
+                  "sourceLanguage": "cpp"
+                }
+              }
+            }
+          ],
+          "fixes": [
+            {
+              "description": {
+                "text": "There are a number of conditions in which memcpy can introduce a vulnerability (mismatched buffer sizes, null pointers, etc.). More secure alternitives perform additional validation of the source and destination buffer"
+              },
+              "artifactChanges": [
+                {
+                  "artifactLocation": {
+                    "uri": "src/rvs_blas.cpp"
+                  },
+                  "replacements": [
+                    {
+                      "deletedRegion": {
+                        "charOffset": 74815,
+                        "charLength": 47
+                      },
+                      "insertedContent": {
+                        "text": "memcpy_s(data, <size of data>,  dataBytes.data(),  dataBytes.size()"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "DevSkimSeverity": "BestPractice",
+            "DevSkimConfidence": "High",
+            "tags": [
+              "API.DangerousAPI.ProblematicFunction"
+            ]
+          }
+        },
+        {
+          "ruleId": "2792a77e-fa57-394c-b938-a1bf05a19225",
+          "kind": "fail",
+          "level": "error",
+          "message": {
+            "text": "Vulnerable Hash Algorithm"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "rcqt.so/src/metaPackageInfo.cpp"
+                },
+                "region": {
+                  "startLine": 43,
+                  "startColumn": 78,
+                  "endLine": 43,
+                  "endColumn": 81,
+                  "charOffset": 1719,
+                  "charLength": 3,
+                  "snippet": {
+                    "text": "md2",
+                    "rendered": {
+                      "text": "md2",
+                      "markdown": "`md2`"
+                    }
+                  },
+                  "sourceLanguage": "cpp"
+                }
+              }
+            }
+          ],
+          "fixes": [
+            {
+              "description": {
+                "text": "A weak or broken hash algorithm was detected."
+              },
+              "artifactChanges": [
+                {
+                  "artifactLocation": {
+                    "uri": "rcqt.so/src/metaPackageInfo.cpp"
+                  },
+                  "replacements": [
+                    {
+                      "deletedRegion": {
+                        "charOffset": 1719,
+                        "charLength": 3
+                      },
+                      "insertedContent": {
+                        "text": "sha512"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "description": {
+                "text": "A weak or broken hash algorithm was detected."
+              },
+              "artifactChanges": [
+                {
+                  "artifactLocation": {
+                    "uri": "rcqt.so/src/metaPackageInfo.cpp"
+                  },
+                  "replacements": [
+                    {
+                      "deletedRegion": {
+                        "charOffset": 1719,
+                        "charLength": 3
+                      },
+                      "insertedContent": {
+                        "text": "sha256"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "DevSkimSeverity": "Critical",
+            "DevSkimConfidence": "High",
+            "tags": [
+              "Cryptography.BannedHashAlgorithm"
+            ]
+          }
+        },
+        {
+          "ruleId": "74a81a92-2915-31e6-bf42-6f1eeb046350",
+          "kind": "fail",
+          "level": "note",
+          "message": {
+            "text": "Problematic C function detected (malloc)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/rvshsa.cpp"
+                },
+                "region": {
+                  "startLine": 1094,
+                  "startColumn": 50,
+                  "endLine": 1094,
+                  "endColumn": 70,
+                  "charOffset": 34734,
+                  "charLength": 20,
+                  "snippet": {
+                    "text": "malloc(link_info_sz)",
+                    "rendered": {
+                      "text": "malloc(link_info_sz)",
+                      "markdown": "`malloc(link_info_sz)`"
+                    }
+                  },
+                  "sourceLanguage": "cpp"
+                }
+              }
+            }
+          ],
+          "fixes": [
+            {
+              "description": {
+                "text": "If the value provided to malloc is the result of unsafe integer math, it can result in an exploitable condition. "
+              },
+              "artifactChanges": [
+                {
+                  "artifactLocation": {
+                    "uri": "src/rvshsa.cpp"
+                  },
+                  "replacements": [
+                    {
+                      "deletedRegion": {
+                        "charOffset": 34734,
+                        "charLength": 20
+                      },
+                      "insertedContent": {
+                        "text": "calloc(<number of elements>, <size of each element>)"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "DevSkimSeverity": "BestPractice",
+            "DevSkimConfidence": "High",
+            "tags": [
+              "API.DangerousAPI.ProblematicFunction"
+            ]
+          }
+        },
+        {
+          "ruleId": "e35f7ee7-5d82-30b6-a331-c7409da6d397",
+          "kind": "fail",
+          "level": "error",
+          "message": {
+            "text": "Vulnerable Hash Algorithm"
           },
           "locations": [
             {
@@ -267,206 +760,11 @@
           }
         },
         {
-          "ruleId": "glog-4bae7b88-6b28-4f28-bf74-5a14986164c9",
-          "kind": "fail",
-          "level": "note",
-          "message": {
-            "text": "Detected Vulnerability in C Function (malloc)"
-          },
-          "locations": [
-            {
-              "physicalLocation": {
-                "artifactLocation": {
-                  "uri": "mem.so/src/rvs_memtest.cpp"
-                },
-                "region": {
-                  "startLine": 1197,
-                  "startColumn": 44,
-                  "endLine": 1197,
-                  "endColumn": 61,
-                  "charOffset": 39558,
-                  "charLength": 17,
-                  "snippet": {
-                    "text": "malloc(BLOCKSIZE)",
-                    "rendered": {
-                      "text": "malloc(BLOCKSIZE)",
-                      "markdown": "`malloc(BLOCKSIZE)`"
-                    }
-                  },
-                  "sourceLanguage": "cpp"
-                }
-              }
-            }
-          ],
-          "fixes": [
-            {
-              "description": {
-                "text": "If the value provided to malloc is the result of unsafe integer math, it can result in an exploitable condition. "
-              },
-              "artifactChanges": [
-                {
-                  "artifactLocation": {
-                    "uri": "mem.so/src/rvs_memtest.cpp"
-                  },
-                  "replacements": [
-                    {
-                      "deletedRegion": {
-                        "charOffset": 39558,
-                        "charLength": 17
-                      },
-                      "insertedContent": {
-                        "text": "calloc(<number of elements>, <size of each element>)"
-                      }
-                    }
-                  ]
-                }
-              ]
-            }
-          ],
-          "properties": {
-            "DevSkimSeverity": "BestPractice",
-            "DevSkimConfidence": "High",
-            "tags": [
-              "API.DangerousAPI.ProblematicFunction"
-            ]
-          }
-        },
-        {
-          "ruleId": "glog-571ad9ba-24ce-4c91-a62d-997f24609245",
-          "kind": "fail",
-          "level": "note",
-          "message": {
-            "text": "Detected Vulnerability in C Function (malloc)"
-          },
-          "locations": [
-            {
-              "physicalLocation": {
-                "artifactLocation": {
-                  "uri": "src/rvshsa.cpp"
-                },
-                "region": {
-                  "startLine": 1094,
-                  "startColumn": 50,
-                  "endLine": 1094,
-                  "endColumn": 70,
-                  "charOffset": 34734,
-                  "charLength": 20,
-                  "snippet": {
-                    "text": "malloc(link_info_sz)",
-                    "rendered": {
-                      "text": "malloc(link_info_sz)",
-                      "markdown": "`malloc(link_info_sz)`"
-                    }
-                  },
-                  "sourceLanguage": "cpp"
-                }
-              }
-            }
-          ],
-          "fixes": [
-            {
-              "description": {
-                "text": "If the value provided to malloc is the result of unsafe integer math, it can result in an exploitable condition. "
-              },
-              "artifactChanges": [
-                {
-                  "artifactLocation": {
-                    "uri": "src/rvshsa.cpp"
-                  },
-                  "replacements": [
-                    {
-                      "deletedRegion": {
-                        "charOffset": 34734,
-                        "charLength": 20
-                      },
-                      "insertedContent": {
-                        "text": "calloc(<number of elements>, <size of each element>)"
-                      }
-                    }
-                  ]
-                }
-              ]
-            }
-          ],
-          "properties": {
-            "DevSkimSeverity": "BestPractice",
-            "DevSkimConfidence": "High",
-            "tags": [
-              "API.DangerousAPI.ProblematicFunction"
-            ]
-          }
-        },
-        {
-          "ruleId": "glog-0282d989-573a-4bec-8abc-e96fdf225840",
-          "kind": "fail",
-          "level": "note",
-          "message": {
-            "text": "Detected Vulnerability in C Function (memcpy)"
-          },
-          "locations": [
-            {
-              "physicalLocation": {
-                "artifactLocation": {
-                  "uri": "rvs/src/rvs_interface.cpp"
-                },
-                "region": {
-                  "startLine": 149,
-                  "startColumn": 6,
-                  "endLine": 149,
-                  "endColumn": 99,
-                  "charOffset": 4822,
-                  "charLength": 93,
-                  "snippet": {
-                    "text": "memcpy(&(rvs_session[session_idx].property), session_property, sizeof(rvs_session_property_t)",
-                    "rendered": {
-                      "text": "memcpy(&(rvs_session[session_idx].property), session_property, sizeof(rvs_session_property_t)",
-                      "markdown": "`memcpy(&(rvs_session[session_idx].property), session_property, sizeof(rvs_session_property_t)`"
-                    }
-                  },
-                  "sourceLanguage": "cpp"
-                }
-              }
-            }
-          ],
-          "fixes": [
-            {
-              "description": {
-                "text": "There are a number of conditions in which memcpy can introduce a vulnerability (mismatched buffer sizes, null pointers, etc.). More secure alternitives perform additional validation of the source and destination buffer"
-              },
-              "artifactChanges": [
-                {
-                  "artifactLocation": {
-                    "uri": "rvs/src/rvs_interface.cpp"
-                  },
-                  "replacements": [
-                    {
-                      "deletedRegion": {
-                        "charOffset": 4822,
-                        "charLength": 93
-                      },
-                      "insertedContent": {
-                        "text": "memcpy_s(&(rvs_session[session_idx].property), <size of &(rvs_session[session_idx].property)>,  session_property,  sizeof(rvs_session_property_t)"
-                      }
-                    }
-                  ]
-                }
-              ]
-            }
-          ],
-          "properties": {
-            "DevSkimSeverity": "BestPractice",
-            "DevSkimConfidence": "High",
-            "tags": [
-              "API.DangerousAPI.ProblematicFunction"
-            ]
-          }
-        },
-        {
-          "ruleId": "glog-9d0be625-7944-498f-9ca3-5695d0bcbee9",
+          "ruleId": "8c1f38fc-8315-395e-a05e-ecd7080d447b",
           "kind": "fail",
           "level": "error",
           "message": {
-            "text": "\"Vulnerable/Compromised Hash Algorithm\""
+            "text": "Vulnerable Hash Algorithm"
           },
           "locations": [
             {
@@ -550,221 +848,11 @@
           }
         },
         {
-          "ruleId": "glog-84b18554-b960-4506-a83d-30464d666cf4",
-          "kind": "fail",
-          "level": "error",
-          "message": {
-            "text": "Avoid seeding randomness using system time or a fixed value."
-          },
-          "locations": [
-            {
-              "physicalLocation": {
-                "artifactLocation": {
-                  "uri": "iet.so/src/iet_worker.cpp"
-                },
-                "region": {
-                  "startLine": 519,
-                  "startColumn": 2,
-                  "endLine": 519,
-                  "endColumn": 13,
-                  "charOffset": 15199,
-                  "charLength": 11,
-                  "snippet": {
-                    "text": "srand(time(",
-                    "rendered": {
-                      "text": "srand(time(",
-                      "markdown": "`srand(time(`"
-                    }
-                  },
-                  "sourceLanguage": "cpp"
-                }
-              }
-            }
-          ],
-          "properties": {
-            "DevSkimSeverity": "Critical",
-            "DevSkimConfidence": "High",
-            "tags": [
-              "Cryptography.WeakRandomness"
-            ]
-          }
-        },
-        {
-          "ruleId": "glog-7af960f7-3089-4dff-aa57-712a97e5037a",
-          "kind": "fail",
-          "level": "error",
-          "message": {
-            "text": "\"Avoid Using Weak or Non-Cryptographic Random Number Generators\""
-          },
-          "locations": [
-            {
-              "physicalLocation": {
-                "artifactLocation": {
-                  "uri": "iet.so/src/iet_worker.cpp"
-                },
-                "region": {
-                  "startLine": 473,
-                  "startColumn": 27,
-                  "endLine": 473,
-                  "endColumn": 32,
-                  "charOffset": 14159,
-                  "charLength": 5,
-                  "snippet": {
-                    "text": "rand(",
-                    "rendered": {
-                      "text": "rand(",
-                      "markdown": "`rand(`"
-                    }
-                  },
-                  "sourceLanguage": "cpp"
-                }
-              }
-            }
-          ],
-          "properties": {
-            "DevSkimSeverity": "Important",
-            "DevSkimConfidence": "High",
-            "tags": [
-              "Cryptography.PRNG.Weak"
-            ]
-          }
-        },
-        {
-          "ruleId": "glog-3f3ee49e-7b1e-4584-bb62-ce75b9e1d75d",
+          "ruleId": "a684f78f-8084-30da-bbd7-f89af8bc6095",
           "kind": "fail",
           "level": "note",
           "message": {
-            "text": "Detected Vulnerability in C Function (memcpy)"
-          },
-          "locations": [
-            {
-              "physicalLocation": {
-                "artifactLocation": {
-                  "uri": "src/rvs_blas.cpp"
-                },
-                "region": {
-                  "startLine": 2404,
-                  "startColumn": 13,
-                  "endLine": 2404,
-                  "endColumn": 60,
-                  "charOffset": 75769,
-                  "charLength": 47,
-                  "snippet": {
-                    "text": "memcpy(data, dataBytes.data(), dataBytes.size()",
-                    "rendered": {
-                      "text": "memcpy(data, dataBytes.data(), dataBytes.size()",
-                      "markdown": "`memcpy(data, dataBytes.data(), dataBytes.size()`"
-                    }
-                  },
-                  "sourceLanguage": "cpp"
-                }
-              }
-            }
-          ],
-          "fixes": [
-            {
-              "description": {
-                "text": "There are a number of conditions in which memcpy can introduce a vulnerability (mismatched buffer sizes, null pointers, etc.). More secure alternitives perform additional validation of the source and destination buffer"
-              },
-              "artifactChanges": [
-                {
-                  "artifactLocation": {
-                    "uri": "src/rvs_blas.cpp"
-                  },
-                  "replacements": [
-                    {
-                      "deletedRegion": {
-                        "charOffset": 75769,
-                        "charLength": 47
-                      },
-                      "insertedContent": {
-                        "text": "memcpy_s(data, <size of data>,  dataBytes.data(),  dataBytes.size()"
-                      }
-                    }
-                  ]
-                }
-              ]
-            }
-          ],
-          "properties": {
-            "DevSkimSeverity": "BestPractice",
-            "DevSkimConfidence": "High",
-            "tags": [
-              "API.DangerousAPI.ProblematicFunction"
-            ]
-          }
-        },
-        {
-          "ruleId": "glog-05ca24fb-12a8-4bfc-b2d9-c44ff643fef1",
-          "kind": "fail",
-          "level": "note",
-          "message": {
-            "text": "Detected Vulnerability in C Function (memcpy)"
-          },
-          "locations": [
-            {
-              "physicalLocation": {
-                "artifactLocation": {
-                  "uri": "src/rvs_blas.cpp"
-                },
-                "region": {
-                  "startLine": 2388,
-                  "startColumn": 9,
-                  "endLine": 2388,
-                  "endColumn": 59,
-                  "charOffset": 74953,
-                  "charLength": 50,
-                  "snippet": {
-                    "text": "memcpy(scale, scaleBytes.data(), scaleBytes.size()",
-                    "rendered": {
-                      "text": "memcpy(scale, scaleBytes.data(), scaleBytes.size()",
-                      "markdown": "`memcpy(scale, scaleBytes.data(), scaleBytes.size()`"
-                    }
-                  },
-                  "sourceLanguage": "cpp"
-                }
-              }
-            }
-          ],
-          "fixes": [
-            {
-              "description": {
-                "text": "There are a number of conditions in which memcpy can introduce a vulnerability (mismatched buffer sizes, null pointers, etc.). More secure alternitives perform additional validation of the source and destination buffer"
-              },
-              "artifactChanges": [
-                {
-                  "artifactLocation": {
-                    "uri": "src/rvs_blas.cpp"
-                  },
-                  "replacements": [
-                    {
-                      "deletedRegion": {
-                        "charOffset": 74953,
-                        "charLength": 50
-                      },
-                      "insertedContent": {
-                        "text": "memcpy_s(scale, <size of scale>,  scaleBytes.data(),  scaleBytes.size()"
-                      }
-                    }
-                  ]
-                }
-              ]
-            }
-          ],
-          "properties": {
-            "DevSkimSeverity": "BestPractice",
-            "DevSkimConfidence": "High",
-            "tags": [
-              "API.DangerousAPI.ProblematicFunction"
-            ]
-          }
-        },
-        {
-          "ruleId": "glog-df4ac9d2-797c-4474-966c-ad6a2c6c85ab",
-          "kind": "fail",
-          "level": "note",
-          "message": {
-            "text": "Issue Detected with C Function (strlen)"
+            "text": "Detected Vulnerability in C Function (strlen)"
           },
           "locations": [
             {
@@ -848,30 +936,30 @@
           }
         },
         {
-          "ruleId": "glog-cbc4ca26-3301-4fdf-bf1c-f89caccc0c66",
+          "ruleId": "446744a2-b55c-313a-8f35-91c49b71505a",
           "kind": "fail",
-          "level": "note",
+          "level": "warning",
           "message": {
-            "text": "Detected Vulnerability in C Function (memcpy)"
+            "text": "Detected Prohibited C Function"
           },
           "locations": [
             {
               "physicalLocation": {
                 "artifactLocation": {
-                  "uri": "src/rvs_blas.cpp"
+                  "uri": "src/rvsliblogger.cpp"
                 },
                 "region": {
-                  "startLine": 2385,
-                  "startColumn": 9,
-                  "endLine": 2385,
-                  "endColumn": 56,
-                  "charOffset": 74815,
-                  "charLength": 47,
+                  "startLine": 583,
+                  "startColumn": 10,
+                  "endLine": 583,
+                  "endColumn": 15,
+                  "charOffset": 14555,
+                  "charLength": 5,
                   "snippet": {
-                    "text": "memcpy(data, dataBytes.data(), dataBytes.size()",
+                    "text": "fopen",
                     "rendered": {
-                      "text": "memcpy(data, dataBytes.data(), dataBytes.size()",
-                      "markdown": "`memcpy(data, dataBytes.data(), dataBytes.size()`"
+                      "text": "fopen",
+                      "markdown": "`fopen`"
                     }
                   },
                   "sourceLanguage": "cpp"
@@ -879,45 +967,20 @@
               }
             }
           ],
-          "fixes": [
-            {
-              "description": {
-                "text": "There are a number of conditions in which memcpy can introduce a vulnerability (mismatched buffer sizes, null pointers, etc.). More secure alternitives perform additional validation of the source and destination buffer"
-              },
-              "artifactChanges": [
-                {
-                  "artifactLocation": {
-                    "uri": "src/rvs_blas.cpp"
-                  },
-                  "replacements": [
-                    {
-                      "deletedRegion": {
-                        "charOffset": 74815,
-                        "charLength": 47
-                      },
-                      "insertedContent": {
-                        "text": "memcpy_s(data, <size of data>,  dataBytes.data(),  dataBytes.size()"
-                      }
-                    }
-                  ]
-                }
-              ]
-            }
-          ],
           "properties": {
-            "DevSkimSeverity": "BestPractice",
+            "DevSkimSeverity": "Moderate",
             "DevSkimConfidence": "High",
             "tags": [
-              "API.DangerousAPI.ProblematicFunction"
+              "API.DangerousAPI.BannedFunction"
             ]
           }
         },
         {
-          "ruleId": "glog-80dedf7b-87bc-4a59-a99c-7c1980c47be9",
+          "ruleId": "c869c745-9a64-3399-bdbe-511754e10ded",
           "kind": "fail",
           "level": "error",
           "message": {
-            "text": "\"Vulnerable/Compromised Hash Algorithm\""
+            "text": "Vulnerable Hash Algorithm"
           },
           "locations": [
             {
@@ -981,94 +1044,6 @@
                     {
                       "deletedRegion": {
                         "charOffset": 1653,
-                        "charLength": 3
-                      },
-                      "insertedContent": {
-                        "text": "sha256"
-                      }
-                    }
-                  ]
-                }
-              ]
-            }
-          ],
-          "properties": {
-            "DevSkimSeverity": "Critical",
-            "DevSkimConfidence": "High",
-            "tags": [
-              "Cryptography.BannedHashAlgorithm"
-            ]
-          }
-        },
-        {
-          "ruleId": "glog-3b4e142b-51fd-4a6e-a47d-319813412b41",
-          "kind": "fail",
-          "level": "error",
-          "message": {
-            "text": "\"Vulnerable/Compromised Hash Algorithm\""
-          },
-          "locations": [
-            {
-              "physicalLocation": {
-                "artifactLocation": {
-                  "uri": "rcqt.so/src/metaPackageInfo.cpp"
-                },
-                "region": {
-                  "startLine": 43,
-                  "startColumn": 78,
-                  "endLine": 43,
-                  "endColumn": 81,
-                  "charOffset": 1719,
-                  "charLength": 3,
-                  "snippet": {
-                    "text": "md2",
-                    "rendered": {
-                      "text": "md2",
-                      "markdown": "`md2`"
-                    }
-                  },
-                  "sourceLanguage": "cpp"
-                }
-              }
-            }
-          ],
-          "fixes": [
-            {
-              "description": {
-                "text": "A weak or broken hash algorithm was detected."
-              },
-              "artifactChanges": [
-                {
-                  "artifactLocation": {
-                    "uri": "rcqt.so/src/metaPackageInfo.cpp"
-                  },
-                  "replacements": [
-                    {
-                      "deletedRegion": {
-                        "charOffset": 1719,
-                        "charLength": 3
-                      },
-                      "insertedContent": {
-                        "text": "sha512"
-                      }
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "description": {
-                "text": "A weak or broken hash algorithm was detected."
-              },
-              "artifactChanges": [
-                {
-                  "artifactLocation": {
-                    "uri": "rcqt.so/src/metaPackageInfo.cpp"
-                  },
-                  "replacements": [
-                    {
-                      "deletedRegion": {
-                        "charOffset": 1719,
                         "charLength": 3
                       },
                       "insertedContent": {
