@@ -15,18 +15,6 @@
               "id": "9847730e-3033-3a5c-a937-3b1d9c396306",
               "help": {
                 "text": "",
-                "markdown": "This finding is considered a genuine vulnerability because the analysis identified a risk of undefined behavior due to possible overlap between the source and destination memory regions in the memory copy operation. The dataflow analysis suggests that the destination buffer may be used as the source, which can lead to undefined behavior with functions like memcpy if the regions overlap. There is no evidence of a guard or check to prevent this overlap, and the source and destination are not proven to be distinct. Additionally, there is a risk that the source pointer may be null, as there is no prior check ensuring it is valid. These factors indicate a real risk of memory corruption or program instability.\n\n## In Context Remediation\nTo prevent undefined behavior when copying memory, ensure that the source and destination memory regions do not overlap. If there is any possibility of overlap, use `std::memmove` instead of `std::memcpy`, as `memmove` is designed to handle overlapping regions safely. Additionally, check that the source pointer is not null before performing the copy to avoid null pointer dereference.\n\n```cpp\nif (data != nullptr && dataBytes.data() != nullptr) {\n    std::memmove(data, dataBytes.data(), dataBytes.size() * sizeof(uint8_t));\n}\n```\n\n## References\n- [OWASP C-Based Toolchain Hardening Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/C-Based_Toolchain_Hardening_Cheat_Sheet.html)\n- [CWE-119: Improper Restriction of Operations within the Bounds of a Memory Buffer](https://cwe.mitre.org/data/definitions/119.html)\n- [CWE-787: Out-of-bounds Write](https://cwe.mitre.org/data/definitions/787.html)\n- [OWASP Buffer Overflow](https://owasp.org/www-community/vulnerabilities/Buffer_Overflow)\n\n\n___\n"
-              },
-              "properties": {
-                "tags": [
-                  "DS121708"
-                ]
-              }
-            },
-            {
-              "id": "2fbf1750-af36-31db-9d31-743e287bfdca",
-              "help": {
-                "text": "",
                 "markdown": "This finding is considered a genuine vulnerability because the analysis detected a possible undefined behavior risk due to overlapping memory regions between the source and destination in a memory copy operation. The dataflow analysis indicates that the destination buffer may alias or overlap with the source buffer, which can cause undefined behavior when using functions like memcpy. Additionally, there is no evidence of explicit checks or guards to prevent this overlap, and the source pointer may also be null, increasing the risk. The destination buffer is a void pointer, and its capacity is not known, which further increases the uncertainty and risk. These factors together make this a high-confidence, actionable issue.\n\n## In Context Remediation 0\nTo prevent undefined behavior when copying memory, ensure that the source and destination memory regions do not overlap. If there is any possibility of overlap, use `std::memmove` instead of `std::memcpy`, as `memmove` is designed to handle overlapping regions safely. Additionally, check that the source pointer is not null before performing the copy to avoid null pointer dereference.\n\n```cpp\nif (data != nullptr && dataBytes.data() != nullptr) {\n    std::memmove(data, dataBytes.data(), dataBytes.size() * sizeof(uint8_t));\n}\n```\n\n## References\n- [OWASP C-Based Toolchain Hardening Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/C-Based_Toolchain_Hardening_Cheat_Sheet.html)\n- [CWE-119: Improper Restriction of Operations within the Bounds of a Memory Buffer](https://cwe.mitre.org/data/definitions/119.html)\n- [CWE-787: Out-of-bounds Write](https://cwe.mitre.org/data/definitions/787.html)\n- [OWASP Buffer Overflow](https://owasp.org/www-community/vulnerabilities/Buffer_Overflow)\n\n\n## In Context Remediation 0\nTo prevent undefined behavior when copying memory where the source and destination may overlap, use `std::memmove` instead of `std::memcpy`. `std::memmove` is designed to handle overlapping memory regions safely. Replace the original call with:\n\n```cpp\nstd::memmove(data, dataBytes.data(), dataBytes.size() * sizeof(uint8_t));\n```\n\nAdditionally, ensure that both `data` and `dataBytes.data()` are not null before performing the copy to avoid null pointer dereference. For example:\n\n```cpp\nif (data != nullptr && dataBytes.data() != nullptr) {\n    std::memmove(data, dataBytes.data(), dataBytes.size() * sizeof(uint8_t));\n}\n```\n\n## References\n- [OWASP C-Based Toolchain Hardening Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/C-Based_Toolchain_Hardening_Cheat_Sheet.html)\n- [OWASP Buffer Overflow](https://owasp.org/www-community/vulnerabilities/Buffer_Overflow)\n- [CWE-119: Improper Restriction of Operations within the Bounds of a Memory Buffer](https://cwe.mitre.org/data/definitions/119.html)\n- [CWE-120: Buffer Copy without Checking Size of Input ('Classic Buffer Overflow')](https://cwe.mitre.org/data/definitions/120.html)\n- [CWE-787: Out-of-bounds Write](https://cwe.mitre.org/data/definitions/787.html)\n\n___\n"
               },
               "properties": {
@@ -36,14 +24,14 @@
               }
             },
             {
-              "id": "0eb58aca-6284-324a-adf4-301183f9abed",
+              "id": "8e2600eb-5dd6-3a0c-9f46-cdf35fba93fe",
               "help": {
                 "text": "",
-                "markdown": "## Description\n\nIn C++ programming, using system time or a static value for seeding randomness can lead to a vulnerability. This is because the seed value can be predicted, which in turn makes the random numbers generated by the `rand()` function predictable. This can be exploited by an attacker to predict the behavior of the program, leading to potential security risks.\n\n## Mitigation Advice\n\nTo mitigate this vulnerability, use a source of randomness that is less predictable. For example, you can use a random device to generate the seed. This will make it much harder for an attacker to predict the seed and therefore the random numbers generated by the `rand()` function.\n\n## Source Code Fix Recommendation\n\nHere is a code fix for the vulnerability:\n\n```cpp\n#include <random>\n\nstd::random_device rd;\nstd::mt19937 mt(rd());\nstd::uniform_real_distribution<double> dist(1.0, 10.0);\n\nfor (int i=0; i<16; ++i)\n    std::cout << dist(mt) << \"\\n\";\n```\n\nIn this code, `std::random_device` is a uniformly-distributed integer random number generator that produces non-deterministic random numbers. `std::mt19937` is a Mersenne Twister pseudo-random generator of 32-bit numbers with a state size of 19937 bits. `std::uniform_real_distribution` produces random floating-point numbers in the range [a, b), and output distributions of each value are (ideally) equal.\n\n## Library Dependencies\n\nThe code example requires the following library dependencies:\n\n- `<random>`: This library is used to generate random numbers.\n- `<iostream>`: This library is used for input/output operations.\n\n## References\n\n- [CWE-330: Use of Insufficiently Random Values](https://cwe.mitre.org/data/definitions/330.html)"
+                "markdown": "This finding is classified as a genuine vulnerability because it is marked as a high-confidence undefined behavior risk due to possible overlap between the source and destination memory regions in a memory copy operation. The analysis detected that the destination and source may refer to overlapping memory through data flow, which can cause undefined behavior with functions like memcpy. Additionally, there is no evidence of a guard or check to prevent this overlap, and the source pointer may also be null, which further increases the risk. The destination is a void pointer, and its capacity is not known, making it difficult to guarantee safety. These factors together indicate a real risk of undefined behavior and potential security issues.\n\n## In Context Remediation\nTo prevent undefined behavior when copying memory, ensure that the source and destination memory regions do not overlap. If there is any possibility of overlap, use `std::memmove` instead of `std::memcpy`, as `memmove` is designed to handle overlapping regions safely. Additionally, check that the source pointer is not null before performing the copy to avoid null pointer dereference.\n\n```cpp\nif (data != nullptr && dataBytes.data() != nullptr) {\n    // Use memmove to safely handle possible overlap\n    std::memmove(data, dataBytes.data(), dataBytes.size() * sizeof(uint8_t));\n}\n```\n\n## References\n- [OWASP: Buffer Overflow](https://owasp.org/www-community/vulnerabilities/Buffer_Overflow)\n- [CWE-119: Improper Restriction of Operations within the Bounds of a Memory Buffer](https://cwe.mitre.org/data/definitions/119.html)\n- [CWE-787: Out-of-bounds Write](https://cwe.mitre.org/data/definitions/787.html)\n- [C-Based Toolchain Hardening Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/C-Based_Toolchain_Hardening_Cheat_Sheet.html)\n\n___\n"
               },
               "properties": {
                 "tags": [
-                  "DS149435"
+                  "DS121708"
                 ]
               }
             },
@@ -60,6 +48,42 @@
               }
             },
             {
+              "id": "a684f78f-8084-30da-bbd7-f89af8bc6095",
+              "help": {
+                "text": "",
+                "markdown": "## Description\n\nThe `strlen` function in C++ is used to calculate the length of a string. However, it can lead to vulnerabilities if not used properly. The function counts the number of characters in a string up to, but not including, the terminating null character. If the string is not null-terminated, `strlen` will continue reading memory until it encounters a null byte, potentially leading to buffer overflows, memory corruption, and other undefined behavior.\n\n## Mitigation Advice\n\nTo mitigate this vulnerability, always ensure that your strings are null-terminated. This can be done by initializing your strings with a null character (`'\\0'`) at the end, or by using functions that automatically null-terminate the string for you.\n\nAdditionally, consider using safer alternatives to `strlen`, such as `strnlen`, which takes a maximum length parameter and will not read past this length, even if it does not encounter a null byte.\n\n## Source Code Fix Recommendation\n\nInstead of:\n\n```cpp\nprefix_len = strlen(prefix);\n```\n\nYou could use:\n\n```cpp\nprefix_len = strnlen(prefix, MAX_PREFIX_LEN);\n```\n\nWhere `MAX_PREFIX_LEN` is the maximum expected length of the prefix.\n\n## Library Dependencies\n\nThe `strlen` function is part of the C standard library, so no additional libraries are needed.\n\n## References\n\n- [OWASP C++ Secure Coding Practices](https://cheatsheetseries.owasp.org/cheatsheets/C-Based_Toolchain_Hardening_Cheat_Sheet.html)\n- [CWE-126: Buffer Over-read](https://cwe.mitre.org/data/definitions/126.html)"
+              },
+              "properties": {
+                "tags": [
+                  "DS140021"
+                ]
+              }
+            },
+            {
+              "id": "74a81a92-2915-31e6-bf42-6f1eeb046350",
+              "help": {
+                "text": "",
+                "markdown": "The finding is classified as 'Likely Vulnerable: malloc result used without null check (possible null deref)', which indicates a high-confidence, actionable issue. The malloc call assigns its result to 'link_info' and is immediately used as the destination in a memset call on the next line, without any check for a NULL return value. There is no zero guard or overflow guard present, and the first use is a memory operation (memset) that would dereference the pointer. No null guard is present before the first use, which increases the risk of a null pointer dereference if malloc fails. The presence of a cast does not mitigate the risk. The pointer is freed in the method and passed to another call, but these do not affect the immediate risk. Based on these factors, this is a genuine vulnerability with a low probability of being a false positive.\n\n## In Context Remediation\nAlways check the result of malloc for NULL before using the allocated memory. If malloc fails, handle the error appropriately (e.g., return an error code, log the failure, or clean up resources). For example, if your original code is:\n\n```c\nlink_info = (type *)malloc(link_info_sz);\nmemset(link_info, 0, link_info_sz);\n```\n\nA safe remediation would be:\n\n```c\nlink_info = (type *)malloc(link_info_sz);\nif (link_info == NULL) {\n    // Handle allocation failure (e.g., return error, log, cleanup)\n    return ERROR_CODE;\n}\nmemset(link_info, 0, link_info_sz);\n```\n\nThis ensures that memset is only called if the allocation succeeded, preventing a possible null pointer dereference.\n\n## References\n- [OWASP C-Based Toolchain Hardening Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/C-Based_Toolchain_Hardening_Cheat_Sheet.html)\n- [CWE-690: Unchecked Return Value to NULL Pointer Dereference](https://cwe.mitre.org/data/definitions/690.html)\n- [OWASP Top Ten](https://owasp.org/www-project-top-ten/)\n\n___\n"
+              },
+              "properties": {
+                "tags": [
+                  "DS161085"
+                ]
+              }
+            },
+            {
+              "id": "0eb58aca-6284-324a-adf4-301183f9abed",
+              "help": {
+                "text": "",
+                "markdown": "## Description\n\nIn C++ programming, using system time or a static value for seeding randomness can lead to a vulnerability. This is because the seed value can be predicted, which in turn makes the random numbers generated by the `rand()` function predictable. This can be exploited by an attacker to predict the behavior of the program, leading to potential security risks.\n\n## Mitigation Advice\n\nTo mitigate this vulnerability, use a source of randomness that is less predictable. For example, you can use a random device to generate the seed. This will make it much harder for an attacker to predict the seed and therefore the random numbers generated by the `rand()` function.\n\n## Source Code Fix Recommendation\n\nHere is a code fix for the vulnerability:\n\n```cpp\n#include <random>\n\nstd::random_device rd;\nstd::mt19937 mt(rd());\nstd::uniform_real_distribution<double> dist(1.0, 10.0);\n\nfor (int i=0; i<16; ++i)\n    std::cout << dist(mt) << \"\\n\";\n```\n\nIn this code, `std::random_device` is a uniformly-distributed integer random number generator that produces non-deterministic random numbers. `std::mt19937` is a Mersenne Twister pseudo-random generator of 32-bit numbers with a state size of 19937 bits. `std::uniform_real_distribution` produces random floating-point numbers in the range [a, b), and output distributions of each value are (ideally) equal.\n\n## Library Dependencies\n\nThe code example requires the following library dependencies:\n\n- `<random>`: This library is used to generate random numbers.\n- `<iostream>`: This library is used for input/output operations.\n\n## References\n\n- [CWE-330: Use of Insufficiently Random Values](https://cwe.mitre.org/data/definitions/330.html)"
+              },
+              "properties": {
+                "tags": [
+                  "DS149435"
+                ]
+              }
+            },
+            {
               "id": "f69951f0-3f96-339f-819c-8c2ec010b633",
               "help": {
                 "text": "",
@@ -72,10 +96,10 @@
               }
             },
             {
-              "id": "8e2600eb-5dd6-3a0c-9f46-cdf35fba93fe",
+              "id": "2fbf1750-af36-31db-9d31-743e287bfdca",
               "help": {
                 "text": "",
-                "markdown": "This finding is classified as a genuine vulnerability because it is marked as a high-confidence undefined behavior risk due to possible overlap between the source and destination memory regions in a memory copy operation. The analysis detected that the destination and source may refer to overlapping memory through data flow, which can cause undefined behavior with functions like memcpy. Additionally, there is no evidence of a guard or check to prevent this overlap, and the source pointer may also be null, which further increases the risk. The destination is a void pointer, and its capacity is not known, making it difficult to guarantee safety. These factors together indicate a real risk of undefined behavior and potential security issues.\n\n## In Context Remediation\nTo prevent undefined behavior when copying memory, ensure that the source and destination memory regions do not overlap. If there is any possibility of overlap, use `std::memmove` instead of `std::memcpy`, as `memmove` is designed to handle overlapping regions safely. Additionally, check that the source pointer is not null before performing the copy to avoid null pointer dereference.\n\n```cpp\nif (data != nullptr && dataBytes.data() != nullptr) {\n    // Use memmove to safely handle possible overlap\n    std::memmove(data, dataBytes.data(), dataBytes.size() * sizeof(uint8_t));\n}\n```\n\n## References\n- [OWASP: Buffer Overflow](https://owasp.org/www-community/vulnerabilities/Buffer_Overflow)\n- [CWE-119: Improper Restriction of Operations within the Bounds of a Memory Buffer](https://cwe.mitre.org/data/definitions/119.html)\n- [CWE-787: Out-of-bounds Write](https://cwe.mitre.org/data/definitions/787.html)\n- [C-Based Toolchain Hardening Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/C-Based_Toolchain_Hardening_Cheat_Sheet.html)\n\n___\n"
+                "markdown": "This finding is classified as a genuine vulnerability because the analysis detected a possible risk of undefined behavior due to overlapping memory regions in a memory copy operation. The code copies data from one structure member to another using a memory copy function, and dataflow analysis suggests that the source and destination may overlap. This can lead to unpredictable program behavior, data corruption, or crashes. There are no explicit checks or guards in the code to prevent this overlap, and the function used is not safe for overlapping memory regions. The source and destination are not null, so null pointer dereference is not a concern here. The risk is specifically related to the possibility that the source and destination buffers may refer to overlapping memory, which is not allowed for this function.\n\n## In Context Remediation\nTo prevent undefined behavior when copying memory between potentially overlapping regions, use a function that is safe for overlapping memory, such as `memmove`, instead of `memcpy`. `memmove` is specifically designed to handle overlapping source and destination buffers safely.\n\n```cpp\n// Replace memcpy with memmove to safely handle possible overlap\nmemmove(&(rvs_session[session_idx].property), session_property, sizeof(rvs_session_property_t));\n```\n\n## References\n- [OWASP C-Based Toolchain Hardening Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/C-Based_Toolchain_Hardening_Cheat_Sheet.html)\n- [CWE-119: Improper Restriction of Operations within the Bounds of a Memory Buffer](https://cwe.mitre.org/data/definitions/119.html)\n- [CWE-787: Out-of-bounds Write](https://cwe.mitre.org/data/definitions/787.html)\n- [OWASP Buffer Overflow](https://owasp.org/www-community/vulnerabilities/Buffer_Overflow)\n\n___\n"
               },
               "properties": {
                 "tags": [
@@ -96,30 +120,6 @@
               }
             },
             {
-              "id": "74a81a92-2915-31e6-bf42-6f1eeb046350",
-              "help": {
-                "text": "",
-                "markdown": "The finding is classified as 'Likely Vulnerable: malloc result used without null check (possible null deref)', which indicates a high-confidence, actionable issue. The malloc call assigns its result to 'link_info' and is immediately used as the destination in a memset call on the next line, without any check for a NULL return value. There is no zero guard or overflow guard present, and the first use is a memory operation (memset) that would dereference the pointer. No null guard is present before the first use, which increases the risk of a null pointer dereference if malloc fails. The presence of a cast does not mitigate the risk. The pointer is freed in the method and passed to another call, but these do not affect the immediate risk. Based on these factors, this is a genuine vulnerability with a low probability of being a false positive.\n\n## In Context Remediation\nAlways check the result of malloc for NULL before using the allocated memory. If malloc fails, handle the error appropriately (e.g., return an error code, log the failure, or clean up resources). For example, if your original code is:\n\n```c\nlink_info = (type *)malloc(link_info_sz);\nmemset(link_info, 0, link_info_sz);\n```\n\nA safe remediation would be:\n\n```c\nlink_info = (type *)malloc(link_info_sz);\nif (link_info == NULL) {\n    // Handle allocation failure (e.g., return error, log, cleanup)\n    return ERROR_CODE;\n}\nmemset(link_info, 0, link_info_sz);\n```\n\nThis ensures that memset is only called if the allocation succeeded, preventing a possible null pointer dereference.\n\n## References\n- [OWASP C-Based Toolchain Hardening Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/C-Based_Toolchain_Hardening_Cheat_Sheet.html)\n- [CWE-690: Unchecked Return Value to NULL Pointer Dereference](https://cwe.mitre.org/data/definitions/690.html)\n- [OWASP Top Ten](https://owasp.org/www-project-top-ten/)\n\n___\n"
-              },
-              "properties": {
-                "tags": [
-                  "DS161085"
-                ]
-              }
-            },
-            {
-              "id": "e35f7ee7-5d82-30b6-a331-c7409da6d397",
-              "help": {
-                "text": "",
-                "markdown": "## Description\n\nA \"Vulnerable Hash Algorithm\" vulnerability in C++ refers to the use of weak or broken cryptographic hash functions. These functions are susceptible to various types of attacks, such as collision attacks, preimage attacks, and second preimage attacks. \n\nIn the context of C++, the MD2 hash function is considered weak and vulnerable. It is a cryptographic hash function with a 128-bit hash value. It was widely used for securing passwords and other sensitive data. However, it is now considered to be broken and unsuitable for further use.\n\n## Mitigation Advice\n\nTo mitigate this vulnerability, it is recommended to use stronger hash functions such as SHA-256 or SHA-3. These hash functions are currently considered secure and are not known to have any significant vulnerabilities.\n\n## Source Code Fix Recommendation\n\nReplace the use of MD2 with a stronger hash function. For example, if you are using the OpenSSL library, you can replace the use of the `MD2` function with the `SHA256` function.\n\n```cpp\n// Old vulnerable code\nunsigned char digest[MD2_DIGEST_LENGTH];\nMD2((unsigned char*)&data, sizeof(data), (unsigned char*)&digest); \n\n// Recommended fix\nunsigned char digest[SHA256_DIGEST_LENGTH];\nSHA256((unsigned char*)&data, sizeof(data), (unsigned char*)&digest);\n```\n\n## Library Dependencies\n\nThe OpenSSL library is required for the code example to execute properly.\n\n## References\n\n- [OWASP Cryptographic Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html)\n- [CWE-327: Use of a Broken or Risky Cryptographic Algorithm](https://cwe.mitre.org/data/definitions/327.html)"
-              },
-              "properties": {
-                "tags": [
-                  "DS126858"
-                ]
-              }
-            },
-            {
               "id": "8c1f38fc-8315-395e-a05e-ecd7080d447b",
               "help": {
                 "text": "",
@@ -132,14 +132,14 @@
               }
             },
             {
-              "id": "a684f78f-8084-30da-bbd7-f89af8bc6095",
+              "id": "c869c745-9a64-3399-bdbe-511754e10ded",
               "help": {
                 "text": "",
-                "markdown": "## Description\n\nThe `strlen` function in C++ is used to calculate the length of a string. However, it can lead to vulnerabilities if not used properly. The function counts the number of characters in a string up to, but not including, the terminating null character. If the string is not null-terminated, `strlen` will continue reading memory until it encounters a null byte, potentially leading to buffer overflows, memory corruption, and other undefined behavior.\n\n## Mitigation Advice\n\nTo mitigate this vulnerability, always ensure that your strings are null-terminated. This can be done by initializing your strings with a null character (`'\\0'`) at the end, or by using functions that automatically null-terminate the string for you.\n\nAdditionally, consider using safer alternatives to `strlen`, such as `strnlen`, which takes a maximum length parameter and will not read past this length, even if it does not encounter a null byte.\n\n## Source Code Fix Recommendation\n\nInstead of:\n\n```cpp\nprefix_len = strlen(prefix);\n```\n\nYou could use:\n\n```cpp\nprefix_len = strnlen(prefix, MAX_PREFIX_LEN);\n```\n\nWhere `MAX_PREFIX_LEN` is the maximum expected length of the prefix.\n\n## Library Dependencies\n\nThe `strlen` function is part of the C standard library, so no additional libraries are needed.\n\n## References\n\n- [OWASP C++ Secure Coding Practices](https://cheatsheetseries.owasp.org/cheatsheets/C-Based_Toolchain_Hardening_Cheat_Sheet.html)\n- [CWE-126: Buffer Over-read](https://cwe.mitre.org/data/definitions/126.html)"
+                "markdown": "## Description\n\nA \"Vulnerable Hash Algorithm\" vulnerability in C++ programming language refers to the use of weak or broken cryptographic hash functions. Cryptographic hash functions are mathematical operations run on digital data; by comparing the computed hash (the output from execution of the algorithm) to a known and expected hash value, a person can determine the data's integrity. A weak hash algorithm can lead to situations where an attacker can easily generate a different input with the same hash output, leading to potential security risks such as password cracking, data integrity issues, and other forms of data manipulation.\n\n## Mitigation Advice\n\nTo mitigate this vulnerability, it is recommended to use strong, industry-accepted cryptographic algorithms. Avoid using custom cryptographic algorithms or those known to be weak or broken. It is also important to keep up-to-date with the latest cryptographic standards and updates, as what is considered strong today may not be in the future.\n\n## Source Code Fix Recommendation\n\nThe specific vulnerability sink `this->m_pkgname = pkgname` does not directly relate to a \"Vulnerable Hash Algorithm\" vulnerability as it is a simple assignment operation. However, if `pkgname` is a result of a weak hash function, then it could be a problem. \n\nIf `pkgname` is a hashed password, for example, you should use a strong hash function like SHA-256, SHA-3, or bcrypt. Here is an example using SHA-256 from the OpenSSL library:\n\n```cpp\n#include <openssl/sha.h>\n\nstd::string hashPassword(const std::string& password) {\n    unsigned char hash[SHA256_DIGEST_LENGTH];\n    SHA256_CTX sha256;\n    SHA256_Init(&sha256);\n    SHA256_Update(&sha256, password.c_str(), password.size());\n    SHA256_Final(hash, &sha256);\n    std::stringstream ss;\n    for(int i = 0; i < SHA256_DIGEST_LENGTH; i++)\n    {\n        ss << std::hex << std::setw(2) << std::setfill('0') << (int)hash[i];\n    }\n    return ss.str();\n}\n\n// Usage\nthis->m_pkgname = hashPassword(pkgname);\n```\n\n## Library Dependencies\n\nThe above code example requires the OpenSSL library.\n\n## References\n\n- [OWASP Cryptographic Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html)\n- [CWE-327: Use of a Broken or Risky Cryptographic Algorithm](https://cwe.mitre.org/data/definitions/327.html)"
               },
               "properties": {
                 "tags": [
-                  "DS140021"
+                  "DS126858"
                 ]
               }
             },
@@ -156,10 +156,10 @@
               }
             },
             {
-              "id": "c869c745-9a64-3399-bdbe-511754e10ded",
+              "id": "e35f7ee7-5d82-30b6-a331-c7409da6d397",
               "help": {
                 "text": "",
-                "markdown": "## Description\n\nA \"Vulnerable Hash Algorithm\" vulnerability in C++ programming language refers to the use of weak or broken cryptographic hash functions. Cryptographic hash functions are mathematical operations run on digital data; by comparing the computed hash (the output from execution of the algorithm) to a known and expected hash value, a person can determine the data's integrity. A weak hash algorithm can lead to situations where an attacker can easily generate a different input with the same hash output, leading to potential security risks such as password cracking, data integrity issues, and other forms of data manipulation.\n\n## Mitigation Advice\n\nTo mitigate this vulnerability, it is recommended to use strong, industry-accepted cryptographic algorithms. Avoid using custom cryptographic algorithms or those known to be weak or broken. It is also important to keep up-to-date with the latest cryptographic standards and updates, as what is considered strong today may not be in the future.\n\n## Source Code Fix Recommendation\n\nThe specific vulnerability sink `this->m_pkgname = pkgname` does not directly relate to a \"Vulnerable Hash Algorithm\" vulnerability as it is a simple assignment operation. However, if `pkgname` is a result of a weak hash function, then it could be a problem. \n\nIf `pkgname` is a hashed password, for example, you should use a strong hash function like SHA-256, SHA-3, or bcrypt. Here is an example using SHA-256 from the OpenSSL library:\n\n```cpp\n#include <openssl/sha.h>\n\nstd::string hashPassword(const std::string& password) {\n    unsigned char hash[SHA256_DIGEST_LENGTH];\n    SHA256_CTX sha256;\n    SHA256_Init(&sha256);\n    SHA256_Update(&sha256, password.c_str(), password.size());\n    SHA256_Final(hash, &sha256);\n    std::stringstream ss;\n    for(int i = 0; i < SHA256_DIGEST_LENGTH; i++)\n    {\n        ss << std::hex << std::setw(2) << std::setfill('0') << (int)hash[i];\n    }\n    return ss.str();\n}\n\n// Usage\nthis->m_pkgname = hashPassword(pkgname);\n```\n\n## Library Dependencies\n\nThe above code example requires the OpenSSL library.\n\n## References\n\n- [OWASP Cryptographic Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html)\n- [CWE-327: Use of a Broken or Risky Cryptographic Algorithm](https://cwe.mitre.org/data/definitions/327.html)"
+                "markdown": "## Description\n\nA \"Vulnerable Hash Algorithm\" vulnerability in C++ refers to the use of weak or broken cryptographic hash functions. These functions are susceptible to various types of attacks, such as collision attacks, preimage attacks, and second preimage attacks. \n\nIn the context of C++, the MD2 hash function is considered weak and vulnerable. It is a cryptographic hash function with a 128-bit hash value. It was widely used for securing passwords and other sensitive data. However, it is now considered to be broken and unsuitable for further use.\n\n## Mitigation Advice\n\nTo mitigate this vulnerability, it is recommended to use stronger hash functions such as SHA-256 or SHA-3. These hash functions are currently considered secure and are not known to have any significant vulnerabilities.\n\n## Source Code Fix Recommendation\n\nReplace the use of MD2 with a stronger hash function. For example, if you are using the OpenSSL library, you can replace the use of the `MD2` function with the `SHA256` function.\n\n```cpp\n// Old vulnerable code\nunsigned char digest[MD2_DIGEST_LENGTH];\nMD2((unsigned char*)&data, sizeof(data), (unsigned char*)&digest); \n\n// Recommended fix\nunsigned char digest[SHA256_DIGEST_LENGTH];\nSHA256((unsigned char*)&data, sizeof(data), (unsigned char*)&digest);\n```\n\n## Library Dependencies\n\nThe OpenSSL library is required for the code example to execute properly.\n\n## References\n\n- [OWASP Cryptographic Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html)\n- [CWE-327: Use of a Broken or Risky Cryptographic Algorithm](https://cwe.mitre.org/data/definitions/327.html)"
               },
               "properties": {
                 "tags": [
@@ -244,7 +244,7 @@
           }
         },
         {
-          "ruleId": "2fbf1750-af36-31db-9d31-743e287bfdca",
+          "ruleId": "8e2600eb-5dd6-3a0c-9f46-cdf35fba93fe",
           "kind": "fail",
           "level": "note",
           "message": {
@@ -254,20 +254,20 @@
             {
               "physicalLocation": {
                 "artifactLocation": {
-                  "uri": "rvs/src/rvs_interface.cpp"
+                  "uri": "src/rvs_blas.cpp"
                 },
                 "region": {
-                  "startLine": 149,
-                  "startColumn": 6,
-                  "endLine": 149,
-                  "endColumn": 99,
-                  "charOffset": 4822,
-                  "charLength": 93,
+                  "startLine": 2385,
+                  "startColumn": 9,
+                  "endLine": 2385,
+                  "endColumn": 56,
+                  "charOffset": 74815,
+                  "charLength": 47,
                   "snippet": {
-                    "text": "memcpy(&(rvs_session[session_idx].property), session_property, sizeof(rvs_session_property_t)",
+                    "text": "memcpy(data, dataBytes.data(), dataBytes.size()",
                     "rendered": {
-                      "text": "memcpy(&(rvs_session[session_idx].property), session_property, sizeof(rvs_session_property_t)",
-                      "markdown": "`memcpy(&(rvs_session[session_idx].property), session_property, sizeof(rvs_session_property_t)`"
+                      "text": "memcpy(data, dataBytes.data(), dataBytes.size()",
+                      "markdown": "`memcpy(data, dataBytes.data(), dataBytes.size()`"
                     }
                   },
                   "sourceLanguage": "cpp"
@@ -283,16 +283,16 @@
               "artifactChanges": [
                 {
                   "artifactLocation": {
-                    "uri": "rvs/src/rvs_interface.cpp"
+                    "uri": "src/rvs_blas.cpp"
                   },
                   "replacements": [
                     {
                       "deletedRegion": {
-                        "charOffset": 4822,
-                        "charLength": 93
+                        "charOffset": 74815,
+                        "charLength": 47
                       },
                       "insertedContent": {
-                        "text": "memcpy_s(&(rvs_session[session_idx].property), <size of &(rvs_session[session_idx].property)>,  session_property,  sizeof(rvs_session_property_t)"
+                        "text": "memcpy_s(data, <size of data>,  dataBytes.data(),  dataBytes.size()"
                       }
                     }
                   ]
@@ -305,46 +305,6 @@
             "DevSkimConfidence": "High",
             "tags": [
               "API.DangerousAPI.ProblematicFunction"
-            ]
-          }
-        },
-        {
-          "ruleId": "0eb58aca-6284-324a-adf4-301183f9abed",
-          "kind": "fail",
-          "level": "error",
-          "message": {
-            "text": "Avoid using system time or static value for randomness seeding."
-          },
-          "locations": [
-            {
-              "physicalLocation": {
-                "artifactLocation": {
-                  "uri": "iet.so/src/iet_worker.cpp"
-                },
-                "region": {
-                  "startLine": 519,
-                  "startColumn": 2,
-                  "endLine": 519,
-                  "endColumn": 13,
-                  "charOffset": 15199,
-                  "charLength": 11,
-                  "snippet": {
-                    "text": "srand(time(",
-                    "rendered": {
-                      "text": "srand(time(",
-                      "markdown": "`srand(time(`"
-                    }
-                  },
-                  "sourceLanguage": "cpp"
-                }
-              }
-            }
-          ],
-          "properties": {
-            "DevSkimSeverity": "Critical",
-            "DevSkimConfidence": "High",
-            "tags": [
-              "Cryptography.WeakRandomness"
             ]
           }
         },
@@ -414,6 +374,199 @@
           }
         },
         {
+          "ruleId": "a684f78f-8084-30da-bbd7-f89af8bc6095",
+          "kind": "fail",
+          "level": "note",
+          "message": {
+            "text": "Detected Vulnerability in C Function (strlen)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/gpu_util.cpp"
+                },
+                "region": {
+                  "startLine": 59,
+                  "startColumn": 19,
+                  "endLine": 59,
+                  "endColumn": 33,
+                  "charOffset": 2293,
+                  "charLength": 14,
+                  "snippet": {
+                    "text": "strlen(prefix)",
+                    "rendered": {
+                      "text": "strlen(prefix)",
+                      "markdown": "`strlen(prefix)`"
+                    }
+                  },
+                  "sourceLanguage": "cpp"
+                }
+              }
+            }
+          ],
+          "fixes": [
+            {
+              "description": {
+                "text": "If a string is missing a null terminator, strlen will read past the end of the buffer"
+              },
+              "artifactChanges": [
+                {
+                  "artifactLocation": {
+                    "uri": "src/gpu_util.cpp"
+                  },
+                  "replacements": [
+                    {
+                      "deletedRegion": {
+                        "charOffset": 2293,
+                        "charLength": 14
+                      },
+                      "insertedContent": {
+                        "text": "strlen_s(prefix, <size of prefix>)"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "description": {
+                "text": "If a string is missing a null terminator, strlen will read past the end of the buffer"
+              },
+              "artifactChanges": [
+                {
+                  "artifactLocation": {
+                    "uri": "src/gpu_util.cpp"
+                  },
+                  "replacements": [
+                    {
+                      "deletedRegion": {
+                        "charOffset": 2293,
+                        "charLength": 14
+                      },
+                      "insertedContent": {
+                        "text": "strnlen(prefix, <size of prefix>)"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "DevSkimSeverity": "BestPractice",
+            "DevSkimConfidence": "High",
+            "tags": [
+              "API.DangerousAPI.ProblematicFunction"
+            ]
+          }
+        },
+        {
+          "ruleId": "74a81a92-2915-31e6-bf42-6f1eeb046350",
+          "kind": "fail",
+          "level": "note",
+          "message": {
+            "text": "Problematic C function detected (malloc)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/rvshsa.cpp"
+                },
+                "region": {
+                  "startLine": 1094,
+                  "startColumn": 50,
+                  "endLine": 1094,
+                  "endColumn": 70,
+                  "charOffset": 34734,
+                  "charLength": 20,
+                  "snippet": {
+                    "text": "malloc(link_info_sz)",
+                    "rendered": {
+                      "text": "malloc(link_info_sz)",
+                      "markdown": "`malloc(link_info_sz)`"
+                    }
+                  },
+                  "sourceLanguage": "cpp"
+                }
+              }
+            }
+          ],
+          "fixes": [
+            {
+              "description": {
+                "text": "If the value provided to malloc is the result of unsafe integer math, it can result in an exploitable condition. "
+              },
+              "artifactChanges": [
+                {
+                  "artifactLocation": {
+                    "uri": "src/rvshsa.cpp"
+                  },
+                  "replacements": [
+                    {
+                      "deletedRegion": {
+                        "charOffset": 34734,
+                        "charLength": 20
+                      },
+                      "insertedContent": {
+                        "text": "calloc(<number of elements>, <size of each element>)"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "DevSkimSeverity": "BestPractice",
+            "DevSkimConfidence": "High",
+            "tags": [
+              "API.DangerousAPI.ProblematicFunction"
+            ]
+          }
+        },
+        {
+          "ruleId": "0eb58aca-6284-324a-adf4-301183f9abed",
+          "kind": "fail",
+          "level": "error",
+          "message": {
+            "text": "Avoid using system time or static value for randomness seeding."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "iet.so/src/iet_worker.cpp"
+                },
+                "region": {
+                  "startLine": 519,
+                  "startColumn": 2,
+                  "endLine": 519,
+                  "endColumn": 13,
+                  "charOffset": 15199,
+                  "charLength": 11,
+                  "snippet": {
+                    "text": "srand(time(",
+                    "rendered": {
+                      "text": "srand(time(",
+                      "markdown": "`srand(time(`"
+                    }
+                  },
+                  "sourceLanguage": "cpp"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "DevSkimSeverity": "Critical",
+            "DevSkimConfidence": "High",
+            "tags": [
+              "Cryptography.WeakRandomness"
+            ]
+          }
+        },
+        {
           "ruleId": "f69951f0-3f96-339f-819c-8c2ec010b633",
           "kind": "fail",
           "level": "error",
@@ -454,7 +607,7 @@
           }
         },
         {
-          "ruleId": "8e2600eb-5dd6-3a0c-9f46-cdf35fba93fe",
+          "ruleId": "2fbf1750-af36-31db-9d31-743e287bfdca",
           "kind": "fail",
           "level": "note",
           "message": {
@@ -464,20 +617,20 @@
             {
               "physicalLocation": {
                 "artifactLocation": {
-                  "uri": "src/rvs_blas.cpp"
+                  "uri": "rvs/src/rvs_interface.cpp"
                 },
                 "region": {
-                  "startLine": 2385,
-                  "startColumn": 9,
-                  "endLine": 2385,
-                  "endColumn": 56,
-                  "charOffset": 74815,
-                  "charLength": 47,
+                  "startLine": 149,
+                  "startColumn": 6,
+                  "endLine": 149,
+                  "endColumn": 99,
+                  "charOffset": 4822,
+                  "charLength": 93,
                   "snippet": {
-                    "text": "memcpy(data, dataBytes.data(), dataBytes.size()",
+                    "text": "memcpy(&(rvs_session[session_idx].property), session_property, sizeof(rvs_session_property_t)",
                     "rendered": {
-                      "text": "memcpy(data, dataBytes.data(), dataBytes.size()",
-                      "markdown": "`memcpy(data, dataBytes.data(), dataBytes.size()`"
+                      "text": "memcpy(&(rvs_session[session_idx].property), session_property, sizeof(rvs_session_property_t)",
+                      "markdown": "`memcpy(&(rvs_session[session_idx].property), session_property, sizeof(rvs_session_property_t)`"
                     }
                   },
                   "sourceLanguage": "cpp"
@@ -493,16 +646,16 @@
               "artifactChanges": [
                 {
                   "artifactLocation": {
-                    "uri": "src/rvs_blas.cpp"
+                    "uri": "rvs/src/rvs_interface.cpp"
                   },
                   "replacements": [
                     {
                       "deletedRegion": {
-                        "charOffset": 74815,
-                        "charLength": 47
+                        "charOffset": 4822,
+                        "charLength": 93
                       },
                       "insertedContent": {
-                        "text": "memcpy_s(data, <size of data>,  dataBytes.data(),  dataBytes.size()"
+                        "text": "memcpy_s(&(rvs_session[session_idx].property), <size of &(rvs_session[session_idx].property)>,  session_property,  sizeof(rvs_session_property_t)"
                       }
                     }
                   ]
@@ -587,159 +740,6 @@
                     {
                       "deletedRegion": {
                         "charOffset": 1719,
-                        "charLength": 3
-                      },
-                      "insertedContent": {
-                        "text": "sha256"
-                      }
-                    }
-                  ]
-                }
-              ]
-            }
-          ],
-          "properties": {
-            "DevSkimSeverity": "Critical",
-            "DevSkimConfidence": "High",
-            "tags": [
-              "Cryptography.BannedHashAlgorithm"
-            ]
-          }
-        },
-        {
-          "ruleId": "74a81a92-2915-31e6-bf42-6f1eeb046350",
-          "kind": "fail",
-          "level": "note",
-          "message": {
-            "text": "Problematic C function detected (malloc)"
-          },
-          "locations": [
-            {
-              "physicalLocation": {
-                "artifactLocation": {
-                  "uri": "src/rvshsa.cpp"
-                },
-                "region": {
-                  "startLine": 1094,
-                  "startColumn": 50,
-                  "endLine": 1094,
-                  "endColumn": 70,
-                  "charOffset": 34734,
-                  "charLength": 20,
-                  "snippet": {
-                    "text": "malloc(link_info_sz)",
-                    "rendered": {
-                      "text": "malloc(link_info_sz)",
-                      "markdown": "`malloc(link_info_sz)`"
-                    }
-                  },
-                  "sourceLanguage": "cpp"
-                }
-              }
-            }
-          ],
-          "fixes": [
-            {
-              "description": {
-                "text": "If the value provided to malloc is the result of unsafe integer math, it can result in an exploitable condition. "
-              },
-              "artifactChanges": [
-                {
-                  "artifactLocation": {
-                    "uri": "src/rvshsa.cpp"
-                  },
-                  "replacements": [
-                    {
-                      "deletedRegion": {
-                        "charOffset": 34734,
-                        "charLength": 20
-                      },
-                      "insertedContent": {
-                        "text": "calloc(<number of elements>, <size of each element>)"
-                      }
-                    }
-                  ]
-                }
-              ]
-            }
-          ],
-          "properties": {
-            "DevSkimSeverity": "BestPractice",
-            "DevSkimConfidence": "High",
-            "tags": [
-              "API.DangerousAPI.ProblematicFunction"
-            ]
-          }
-        },
-        {
-          "ruleId": "e35f7ee7-5d82-30b6-a331-c7409da6d397",
-          "kind": "fail",
-          "level": "error",
-          "message": {
-            "text": "Vulnerable Hash Algorithm"
-          },
-          "locations": [
-            {
-              "physicalLocation": {
-                "artifactLocation": {
-                  "uri": "rcqt.so/include/metaPackageInfo.h"
-                },
-                "region": {
-                  "startLine": 83,
-                  "startColumn": 23,
-                  "endLine": 83,
-                  "endColumn": 26,
-                  "charOffset": 2842,
-                  "charLength": 3,
-                  "snippet": {
-                    "text": "md2",
-                    "rendered": {
-                      "text": "md2",
-                      "markdown": "`md2`"
-                    }
-                  },
-                  "sourceLanguage": "c"
-                }
-              }
-            }
-          ],
-          "fixes": [
-            {
-              "description": {
-                "text": "A weak or broken hash algorithm was detected."
-              },
-              "artifactChanges": [
-                {
-                  "artifactLocation": {
-                    "uri": "rcqt.so/include/metaPackageInfo.h"
-                  },
-                  "replacements": [
-                    {
-                      "deletedRegion": {
-                        "charOffset": 2842,
-                        "charLength": 3
-                      },
-                      "insertedContent": {
-                        "text": "sha512"
-                      }
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "description": {
-                "text": "A weak or broken hash algorithm was detected."
-              },
-              "artifactChanges": [
-                {
-                  "artifactLocation": {
-                    "uri": "rcqt.so/include/metaPackageInfo.h"
-                  },
-                  "replacements": [
-                    {
-                      "deletedRegion": {
-                        "charOffset": 2842,
                         "charLength": 3
                       },
                       "insertedContent": {
@@ -848,134 +848,6 @@
           }
         },
         {
-          "ruleId": "a684f78f-8084-30da-bbd7-f89af8bc6095",
-          "kind": "fail",
-          "level": "note",
-          "message": {
-            "text": "Detected Vulnerability in C Function (strlen)"
-          },
-          "locations": [
-            {
-              "physicalLocation": {
-                "artifactLocation": {
-                  "uri": "src/gpu_util.cpp"
-                },
-                "region": {
-                  "startLine": 59,
-                  "startColumn": 19,
-                  "endLine": 59,
-                  "endColumn": 33,
-                  "charOffset": 2293,
-                  "charLength": 14,
-                  "snippet": {
-                    "text": "strlen(prefix)",
-                    "rendered": {
-                      "text": "strlen(prefix)",
-                      "markdown": "`strlen(prefix)`"
-                    }
-                  },
-                  "sourceLanguage": "cpp"
-                }
-              }
-            }
-          ],
-          "fixes": [
-            {
-              "description": {
-                "text": "If a string is missing a null terminator, strlen will read past the end of the buffer"
-              },
-              "artifactChanges": [
-                {
-                  "artifactLocation": {
-                    "uri": "src/gpu_util.cpp"
-                  },
-                  "replacements": [
-                    {
-                      "deletedRegion": {
-                        "charOffset": 2293,
-                        "charLength": 14
-                      },
-                      "insertedContent": {
-                        "text": "strlen_s(prefix, <size of prefix>)"
-                      }
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "description": {
-                "text": "If a string is missing a null terminator, strlen will read past the end of the buffer"
-              },
-              "artifactChanges": [
-                {
-                  "artifactLocation": {
-                    "uri": "src/gpu_util.cpp"
-                  },
-                  "replacements": [
-                    {
-                      "deletedRegion": {
-                        "charOffset": 2293,
-                        "charLength": 14
-                      },
-                      "insertedContent": {
-                        "text": "strnlen(prefix, <size of prefix>)"
-                      }
-                    }
-                  ]
-                }
-              ]
-            }
-          ],
-          "properties": {
-            "DevSkimSeverity": "BestPractice",
-            "DevSkimConfidence": "High",
-            "tags": [
-              "API.DangerousAPI.ProblematicFunction"
-            ]
-          }
-        },
-        {
-          "ruleId": "446744a2-b55c-313a-8f35-91c49b71505a",
-          "kind": "fail",
-          "level": "warning",
-          "message": {
-            "text": "Detected Prohibited C Function"
-          },
-          "locations": [
-            {
-              "physicalLocation": {
-                "artifactLocation": {
-                  "uri": "src/rvsliblogger.cpp"
-                },
-                "region": {
-                  "startLine": 583,
-                  "startColumn": 10,
-                  "endLine": 583,
-                  "endColumn": 15,
-                  "charOffset": 14555,
-                  "charLength": 5,
-                  "snippet": {
-                    "text": "fopen",
-                    "rendered": {
-                      "text": "fopen",
-                      "markdown": "`fopen`"
-                    }
-                  },
-                  "sourceLanguage": "cpp"
-                }
-              }
-            }
-          ],
-          "properties": {
-            "DevSkimSeverity": "Moderate",
-            "DevSkimConfidence": "High",
-            "tags": [
-              "API.DangerousAPI.BannedFunction"
-            ]
-          }
-        },
-        {
           "ruleId": "c869c745-9a64-3399-bdbe-511754e10ded",
           "kind": "fail",
           "level": "error",
@@ -1044,6 +916,134 @@
                     {
                       "deletedRegion": {
                         "charOffset": 1653,
+                        "charLength": 3
+                      },
+                      "insertedContent": {
+                        "text": "sha256"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "DevSkimSeverity": "Critical",
+            "DevSkimConfidence": "High",
+            "tags": [
+              "Cryptography.BannedHashAlgorithm"
+            ]
+          }
+        },
+        {
+          "ruleId": "446744a2-b55c-313a-8f35-91c49b71505a",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "Detected Prohibited C Function"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/rvsliblogger.cpp"
+                },
+                "region": {
+                  "startLine": 583,
+                  "startColumn": 10,
+                  "endLine": 583,
+                  "endColumn": 15,
+                  "charOffset": 14555,
+                  "charLength": 5,
+                  "snippet": {
+                    "text": "fopen",
+                    "rendered": {
+                      "text": "fopen",
+                      "markdown": "`fopen`"
+                    }
+                  },
+                  "sourceLanguage": "cpp"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "DevSkimSeverity": "Moderate",
+            "DevSkimConfidence": "High",
+            "tags": [
+              "API.DangerousAPI.BannedFunction"
+            ]
+          }
+        },
+        {
+          "ruleId": "e35f7ee7-5d82-30b6-a331-c7409da6d397",
+          "kind": "fail",
+          "level": "error",
+          "message": {
+            "text": "Vulnerable Hash Algorithm"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "rcqt.so/include/metaPackageInfo.h"
+                },
+                "region": {
+                  "startLine": 83,
+                  "startColumn": 23,
+                  "endLine": 83,
+                  "endColumn": 26,
+                  "charOffset": 2842,
+                  "charLength": 3,
+                  "snippet": {
+                    "text": "md2",
+                    "rendered": {
+                      "text": "md2",
+                      "markdown": "`md2`"
+                    }
+                  },
+                  "sourceLanguage": "c"
+                }
+              }
+            }
+          ],
+          "fixes": [
+            {
+              "description": {
+                "text": "A weak or broken hash algorithm was detected."
+              },
+              "artifactChanges": [
+                {
+                  "artifactLocation": {
+                    "uri": "rcqt.so/include/metaPackageInfo.h"
+                  },
+                  "replacements": [
+                    {
+                      "deletedRegion": {
+                        "charOffset": 2842,
+                        "charLength": 3
+                      },
+                      "insertedContent": {
+                        "text": "sha512"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "description": {
+                "text": "A weak or broken hash algorithm was detected."
+              },
+              "artifactChanges": [
+                {
+                  "artifactLocation": {
+                    "uri": "rcqt.so/include/metaPackageInfo.h"
+                  },
+                  "replacements": [
+                    {
+                      "deletedRegion": {
+                        "charOffset": 2842,
                         "charLength": 3
                       },
                       "insertedContent": {
